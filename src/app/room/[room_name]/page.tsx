@@ -2,13 +2,15 @@
 
 import { GameView } from "@/components/GameView";
 import { ParticipantList } from "@/components/ParticipantList";
+import { RoomInfo } from "@/components/RoomInfo";
 import { UsernameInput } from "@/components/UsernameInput";
 import {
   ConnectionDetails,
   ConnectionDetailsBody,
 } from "@/pages/api/connection_details";
 import { LiveKitRoom } from "@livekit/components-react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
 
 type Props = {
   params: { room_name: string };
@@ -17,6 +19,10 @@ type Props = {
 export default function Page({ params: { room_name } }: Props) {
   const [connectionDetails, setConnectionDetails] =
     useState<ConnectionDetails | null>(null);
+
+  const humanRoomName = useMemo(() => {
+    return decodeURI(room_name);
+  }, [room_name]);
 
   const requestConnectionDetails = useCallback(
     async (username: string) => {
@@ -38,8 +44,10 @@ export default function Page({ params: { room_name } }: Props) {
   // If we don't have any connection details yet, show the username form
   if (connectionDetails === null) {
     return (
-      <div>
-        <h2>{room_name}</h2>
+      <div className="w-screen h-screen flex flex-col items-center justify-center">
+        <h2 className="text-4xl mb-4">{humanRoomName}</h2>
+        <RoomInfo roomName={room_name} />
+        <div className="divider"></div>
         <UsernameInput
           submitText="Join Room"
           onSubmit={async (username) => {
