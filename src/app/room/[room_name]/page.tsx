@@ -9,8 +9,8 @@ import {
   ConnectionDetailsBody,
 } from "@/pages/api/connection_details";
 import { LiveKitRoom } from "@livekit/components-react";
+import dynamic from "next/dynamic";
 import { useCallback, useMemo, useState } from "react";
-import { toast } from "react-hot-toast";
 
 type Props = {
   params: { room_name: string };
@@ -68,10 +68,10 @@ export default function Page({ params: { room_name } }: Props) {
         connect={true}
       >
         <div className="flex bg-purple-400 h-screen">
-          <div className="bg-red-400 grow">
+          <div className="grow">
             <GameView />
           </div>
-          <div className="bg-blue-400 w-1/5">
+          <div className="w-1/5">
             <ParticipantList />
           </div>
         </div>
