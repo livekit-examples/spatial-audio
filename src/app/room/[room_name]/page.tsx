@@ -67,12 +67,17 @@ export default function Page({ params: { room_name } }: Props) {
         serverUrl={connectionDetails.ws_url}
         connect={true}
       >
-        <div className="flex bg-purple-400 h-screen">
-          <div className="grow">
-            <GameView />
-          </div>
-          <div className="w-1/5">
-            <ParticipantList />
+        <div className="flex h-screen w-screen">
+          <div className="flex flex-col w-full h-full">
+            <div className="grow flex">
+              <div className="grow">
+                <GameView />
+              </div>
+              <div className="w-1/5">
+                <ParticipantList />
+              </div>
+            </div>
+            <div className="bg-neutral h-10"></div>
           </div>
         </div>
       </LiveKitRoom>

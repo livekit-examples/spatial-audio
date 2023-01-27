@@ -320,10 +320,10 @@
   resolved "https://registry.yarnpkg.com/@pixi/prepare/-/prepare-7.1.1.tgz#c2dfc7b6471d603fd7d9706a786be85e66396a48"
   integrity sha512-pdiViD4r8Oc70uCdWH1JGVeCujLTCiMtSFPgW0xyg/Fc7PfID7i6iiqKhYLMIva5nBAyPIKUo8IWFaoHjyiUHQ==
 
-"@pixi/react@^7.0.0-alpha.1":
-  version "7.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/@pixi/react/-/react-7.0.0-alpha.1.tgz#cefa267c5637f2b514b6d2ddaa714cd2fe45839e"
-  integrity sha512-QGAOrNE0ZnuvYTD1zxy527Nca75i5gF7Qg71Hhsta6I9Gb9T4vV3snl2IRj3ZmyZ2FYoJz0IeBto/pcd2Mif2w==
+"@pixi/react@^7.0.0-alpha.2":
+  version "7.0.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/@pixi/react/-/react-7.0.0-alpha.2.tgz#3277421dd3ef2753d76bae7692298e15061eba95"
+  integrity sha512-+yUK8P3TB0whE6tZGkR5X176l9RrU/oVKWOo2TxpnDAnnzcWvOMMZ9S4xS0Iw8IPizwE6cg1fBNI3nRNUuB5FQ==
   dependencies:
     lodash.isnil "4.0.0"
     lodash.times "4.3.2"
