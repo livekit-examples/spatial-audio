@@ -1,3 +1,7 @@
+import {
+  useMediaDevices,
+  useMediaDeviceSelect,
+} from "@livekit/components-react";
 import React, { useContext, useMemo } from "react";
 
 type SelectMicrophoneFn = (index: number) => void;
@@ -17,6 +21,7 @@ type WebAudioMic = WebAudioMicSineWave;
 
 type MicrophoneSelection = {
   name: string;
+  id: string;
   microphone: MediaDeviceInfo | WebAudioMic;
 };
 
@@ -40,9 +45,23 @@ export function MicrophoneProvider({ children }: Props) {
     defaultValue.selectedMicrophoneIndex
   );
 
+  const mediaDevices = useMediaDevices({ kind: "audioinput" });
+
   const microphones = useMemo(() => {
-    return [];
-  }, []);
+    const devices = mediaDevices.map((device) => ({
+      name: device.label,
+      id: device.deviceId,
+      microphone: device,
+    }));
+    return [
+      ...devices,
+      {
+        name: "Sine Wave",
+        id: "sine-wave",
+        microphone: { type: "sine" } as WebAudioMicSineWave,
+      },
+    ];
+  }, [mediaDevices]);
 
   return (
     <MicrophoneContext.Provider
