@@ -1,5 +1,18 @@
-import { useMediaDevices } from "@livekit/components-react";
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useLiveKitRoom,
+  useLocalParticipant,
+  useMediaDevices,
+  useMediaTrack,
+  useRoomContext,
+} from "@livekit/components-react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useWebAudio } from "./webAudio";
 
 type SelectMicrophoneFn = (index: number) => void;
@@ -19,11 +32,23 @@ type WebAudioMicSineWave = {
 
 type WebAudioMic = WebAudioMicSineWave;
 
-type MicrophoneSelection = {
+interface MicrophoneSelectionDevice {
+  type: "device";
   name: string;
   id: string;
-  microphone: MediaDeviceInfo | WebAudioMic;
-};
+  microphone: MediaDeviceInfo;
+}
+
+interface MicrophoneSelectionWebAudio {
+  type: "web_audio";
+  name: string;
+  id: string;
+  microphone: WebAudioMic;
+}
+
+type MicrophoneSelection =
+  | MicrophoneSelectionDevice
+  | MicrophoneSelectionWebAudio;
 
 const defaultValue: Data = {
   microphones: [],
@@ -47,12 +72,34 @@ export function MicrophoneProvider({ children }: Props) {
   const [selectedMicrophoneIndex, setSelectedMicrophoneIndex] = React.useState(
     defaultValue.selectedMicrophoneIndex
   );
-  const [muted, setMuted] = React.useState(defaultValue.muted);
+  const [muted, _setMuted] = React.useState(defaultValue.muted);
   const webAudioMicAudioElRef = useRef<HTMLAudioElement>(null);
   const mediaDevices = useMediaDevices({ kind: "audioinput" });
+  const { localParticipant } = useLocalParticipant();
 
-  const microphones = useMemo(() => {
-    const devices = mediaDevices.map((device) => ({
+  const setMuted = useCallback(
+    async (muted: boolean) => {
+      _setMuted(muted);
+      if (!muted) {
+        // TODO
+        // const mediaStream = await navigator.mediaDevices.getUserMedia({
+        //   audio: {
+        //     deviceId: { exact: mediaDevices[selectedMicrophoneIndex].deviceId },
+        //   },
+        // });
+        //TODO
+        //await localParticipant?.publishTrack();
+      } else {
+        //TODO
+        //await localParticipant?.unpublishTrack();
+      }
+    },
+    [localParticipant]
+  );
+
+  const microphones: MicrophoneSelection[] = useMemo(() => {
+    const devices: MicrophoneSelectionDevice[] = mediaDevices.map((device) => ({
+      type: "device",
       name: device.label,
       id: device.deviceId,
       microphone: device,
@@ -60,12 +107,24 @@ export function MicrophoneProvider({ children }: Props) {
     return [
       ...devices,
       {
+        type: "web_audio",
         name: "Sine Wave",
         id: "sine-wave",
         microphone: { type: "sine" } as WebAudioMicSineWave,
       },
     ];
   }, [mediaDevices]);
+
+  const selectedTrack = useMemo(() => {
+    if (
+      selectedMicrophoneIndex === -1 ||
+      selectedMicrophoneIndex >= microphones.length
+    ) {
+      return null;
+    }
+
+    return microphones[selectedMicrophoneIndex];
+  }, [microphones, selectedMicrophoneIndex]);
 
   return (
     <MicrophoneContext.Provider
@@ -81,7 +140,7 @@ export function MicrophoneProvider({ children }: Props) {
         },
       }}
     >
-      <audio ref={webAudioMicAudioElRef} muted={muted} />
+      <audio ref={webAudioMicAudioElRef} muted={true} />
       <SineWaveMicrophone audioElRef={webAudioMicAudioElRef} />
       {children}
     </MicrophoneContext.Provider>
