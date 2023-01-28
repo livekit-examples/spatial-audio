@@ -1,15 +1,15 @@
-import {
-  useMediaDevices,
-  useMediaDeviceSelect,
-} from "@livekit/components-react";
-import React, { useContext, useMemo } from "react";
+import { useMediaDevices } from "@livekit/components-react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useWebAudio } from "./webAudio";
 
 type SelectMicrophoneFn = (index: number) => void;
 
 type Data = {
   microphones: MicrophoneSelection[];
   selectedMicrophoneIndex: number;
+  muted: boolean;
 
+  setMuted: (muted: boolean) => void;
   selectMicrophone: SelectMicrophoneFn;
 };
 
@@ -28,6 +28,9 @@ type MicrophoneSelection = {
 const defaultValue: Data = {
   microphones: [],
   selectedMicrophoneIndex: -1,
+  muted: true,
+
+  setMuted: () => null,
   selectMicrophone: () => null,
 };
 
@@ -44,7 +47,8 @@ export function MicrophoneProvider({ children }: Props) {
   const [selectedMicrophoneIndex, setSelectedMicrophoneIndex] = React.useState(
     defaultValue.selectedMicrophoneIndex
   );
-
+  const [muted, setMuted] = React.useState(defaultValue.muted);
+  const webAudioMicAudioElRef = useRef<HTMLAudioElement>(null);
   const mediaDevices = useMediaDevices({ kind: "audioinput" });
 
   const microphones = useMemo(() => {
@@ -70,10 +74,15 @@ export function MicrophoneProvider({ children }: Props) {
         data: {
           microphones,
           selectedMicrophoneIndex,
+          muted,
+
           selectMicrophone: setSelectedMicrophoneIndex,
+          setMuted,
         },
       }}
     >
+      <audio ref={webAudioMicAudioElRef} muted={muted} />
+      <SineWaveMicrophone audioElRef={webAudioMicAudioElRef} />
       {children}
     </MicrophoneContext.Provider>
   );
@@ -86,4 +95,53 @@ export function useMicrophone() {
   }
 
   return ctx.data;
+}
+
+type SineWaveMicrophoneProps = {
+  audioElRef: React.RefObject<HTMLAudioElement>;
+};
+
+function SineWaveMicrophone({ audioElRef }: SineWaveMicrophoneProps) {
+  const { selectedMicrophoneIndex, microphones, muted } = useMicrophone();
+
+  const { audioContext } = useWebAudio();
+  const oscillator = useRef<OscillatorNode | null>(null);
+  const sink = useRef<MediaStreamAudioDestinationNode | null>(null);
+
+  const isSineWaveSelected = useMemo(
+    () => microphones[selectedMicrophoneIndex]?.id === "sine-wave",
+    [microphones, selectedMicrophoneIndex]
+  );
+
+  useEffect(() => {
+    const cleanup = () => {
+      if (oscillator.current !== null) {
+        oscillator.current.stop();
+        oscillator.current.disconnect();
+        oscillator.current = null;
+      }
+      if (sink.current !== null) {
+        sink.current.disconnect();
+        sink.current = null;
+      }
+    };
+
+    if (
+      !isSineWaveSelected ||
+      audioContext === null ||
+      audioElRef.current === null
+    ) {
+      cleanup();
+      return;
+    }
+
+    oscillator.current = audioContext.createOscillator();
+    sink.current = audioContext.createMediaStreamDestination();
+    oscillator.current.connect(sink.current);
+
+    audioElRef.current.srcObject = sink.current.stream;
+    audioElRef.current.play();
+  }, [audioContext, audioElRef, isSineWaveSelected]);
+
+  return null;
 }
