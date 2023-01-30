@@ -1,8 +1,13 @@
 import { useMicrophone } from "@/audio/microphone";
+import { useEffect } from "react";
 
 export function MicrophoneSelector() {
   const { selectedMicrophoneIndex, microphones, selectMicrophone } =
     useMicrophone();
+
+  useEffect(() => {
+    console.log("LUKAS - ", microphones);
+  }, [microphones]);
 
   return (
     <div>
