@@ -1,6 +1,7 @@
 "use client";
 
 import { MicrophoneProvider } from "@/audio/microphone";
+import { PlaybackProvider } from "@/audio/playback";
 import { WebAudioProvider } from "@/audio/webAudio";
 import { BottomBar } from "@/components/BottomBar";
 import { GameView } from "@/components/GameView";
@@ -69,25 +70,28 @@ export default function Page({ params: { room_name } }: Props) {
         token={connectionDetails.token}
         serverUrl={connectionDetails.ws_url}
         connect={true}
+        connectOptions={{ autoSubscribe: false }}
       >
         <WebAudioProvider>
-          <MicrophoneProvider>
-            <div className="flex h-screen w-screen">
-              <div className="flex flex-col w-full h-full">
-                <div className="grow flex">
-                  <div className="grow">
-                    <GameView />
+          <PlaybackProvider>
+            <MicrophoneProvider>
+              <div className="flex h-screen w-screen">
+                <div className="flex flex-col w-full h-full">
+                  <div className="grow flex">
+                    <div className="grow">
+                      <GameView />
+                    </div>
+                    <div className="w-1/5">
+                      <ParticipantList />
+                    </div>
                   </div>
-                  <div className="w-1/5">
-                    <ParticipantList />
+                  <div className="bg-neutral">
+                    <BottomBar />
                   </div>
-                </div>
-                <div className="bg-neutral">
-                  <BottomBar />
                 </div>
               </div>
-            </div>
-          </MicrophoneProvider>
+            </MicrophoneProvider>
+          </PlaybackProvider>
         </WebAudioProvider>
       </LiveKitRoom>
     </div>

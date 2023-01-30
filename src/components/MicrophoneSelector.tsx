@@ -5,10 +5,6 @@ export function MicrophoneSelector() {
   const { selectedMicrophoneIndex, microphones, selectMicrophone } =
     useMicrophone();
 
-  useEffect(() => {
-    console.log("LUKAS - ", microphones);
-  }, [microphones]);
-
   return (
     <div>
       <select
