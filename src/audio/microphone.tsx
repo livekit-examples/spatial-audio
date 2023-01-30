@@ -74,30 +74,12 @@ export function MicrophoneProvider({ children }: Props) {
   const [selectedMicrophoneIndex, setSelectedMicrophoneIndex] = React.useState(
     defaultValue.selectedMicrophoneIndex
   );
-  const [muted, _setMuted] = React.useState(defaultValue.muted);
+  const [_muted, _setMuted] = React.useState(defaultValue.muted);
+  const [webAudioMediaStream, setWebAudioMediaStream] =
+    useState<MediaStream | null>(null);
   const webAudioMicAudioElRef = useRef<HTMLAudioElement>(null);
   const mediaDevices = useMediaDevices({ kind: "audioinput" });
   const { localParticipant } = useLocalParticipant();
-
-  const setMuted = useCallback(
-    async (muted: boolean) => {
-      _setMuted(muted);
-      if (!muted) {
-        // TODO
-        // const mediaStream = await navigator.mediaDevices.getUserMedia({
-        //   audio: {
-        //     deviceId: { exact: mediaDevices[selectedMicrophoneIndex].deviceId },
-        //   },
-        // });
-        //TODO
-        //await localParticipant?.publishTrack();
-      } else {
-        //TODO
-        //await localParticipant?.unpublishTrack();
-      }
-    },
-    [localParticipant]
-  );
 
   const microphones: MicrophoneSelection[] = useMemo(() => {
     const devices: MicrophoneSelectionDevice[] = mediaDevices.map((device) => ({
@@ -117,7 +99,7 @@ export function MicrophoneProvider({ children }: Props) {
     ];
   }, [mediaDevices]);
 
-  const selectedTrack = useMemo(() => {
+  const selectedMicrophone = useMemo(() => {
     if (
       selectedMicrophoneIndex === -1 ||
       selectedMicrophoneIndex >= microphones.length
@@ -128,6 +110,58 @@ export function MicrophoneProvider({ children }: Props) {
     return microphones[selectedMicrophoneIndex];
   }, [microphones, selectedMicrophoneIndex]);
 
+  const setMuted = useCallback(
+    async (muted: boolean) => {
+      if (selectedMicrophone === null) {
+        _setMuted(true);
+        return;
+      }
+      if (!muted) {
+        if (selectedMicrophone.type === "device") {
+          const mediaStream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              deviceId: {
+                exact: mediaDevices[selectedMicrophoneIndex].deviceId,
+              },
+            },
+          });
+          await localParticipant?.publishTrack(mediaStream.getAudioTracks()[0]);
+        } else if (selectedMicrophone.type === "web_audio") {
+          if (webAudioMediaStream === null) {
+            _setMuted(true);
+            return;
+          }
+          await localParticipant?.publishTrack(
+            webAudioMediaStream.getAudioTracks()[0]
+          );
+        }
+      } else {
+        //TODO
+        //await localParticipant?.unpublishTrack();
+      }
+
+      _setMuted(muted);
+    },
+    [
+      localParticipant,
+      mediaDevices,
+      selectedMicrophone,
+      selectedMicrophoneIndex,
+      webAudioMediaStream,
+    ]
+  );
+
+  useEffect(() => {
+    if (
+      webAudioMediaStream !== null &&
+      webAudioMicAudioElRef.current !== null
+    ) {
+      const audioEl = webAudioMicAudioElRef.current;
+      audioEl.srcObject = webAudioMediaStream;
+      audioEl.play();
+    }
+  }, [webAudioMediaStream]);
+
   return (
     <MicrophoneContext.Provider
       value={{
@@ -135,7 +169,7 @@ export function MicrophoneProvider({ children }: Props) {
         data: {
           microphones,
           selectedMicrophoneIndex,
-          muted,
+          muted: _muted,
 
           selectMicrophone: setSelectedMicrophoneIndex,
           setMuted,
@@ -143,7 +177,7 @@ export function MicrophoneProvider({ children }: Props) {
       }}
     >
       <audio ref={webAudioMicAudioElRef} muted={true} />
-      <SineWaveMicrophone audioElRef={webAudioMicAudioElRef} />
+      <SineWaveMicrophone setStream={setWebAudioMediaStream} />
       {children}
     </MicrophoneContext.Provider>
   );
@@ -159,10 +193,10 @@ export function useMicrophone() {
 }
 
 type SineWaveMicrophoneProps = {
-  audioElRef: React.RefObject<HTMLAudioElement>;
+  setStream: (stream: MediaStream) => void;
 };
 
-function SineWaveMicrophone({ audioElRef }: SineWaveMicrophoneProps) {
+function SineWaveMicrophone({ setStream }: SineWaveMicrophoneProps) {
   const { selectedMicrophoneIndex, microphones, muted } = useMicrophone();
 
   const { audioContext } = useWebAudio();
@@ -187,11 +221,7 @@ function SineWaveMicrophone({ audioElRef }: SineWaveMicrophoneProps) {
       }
     };
 
-    if (
-      !isSineWaveSelected ||
-      audioContext === null ||
-      audioElRef.current === null
-    ) {
+    if (!isSineWaveSelected || audioContext === null) {
       cleanup();
       return;
     }
@@ -199,10 +229,9 @@ function SineWaveMicrophone({ audioElRef }: SineWaveMicrophoneProps) {
     oscillator.current = audioContext.createOscillator();
     sink.current = audioContext.createMediaStreamDestination();
     oscillator.current.connect(sink.current);
-
-    audioElRef.current.srcObject = sink.current.stream;
-    audioElRef.current.play();
-  }, [audioContext, audioElRef, isSineWaveSelected]);
+    oscillator.current.start();
+    setStream(sink.current.stream);
+  }, [audioContext, isSineWaveSelected, setStream]);
 
   return null;
 }
