@@ -18,31 +18,11 @@ type Props = {
 };
 
 export function WebAudioProvider({ children }: Props) {
-  const [audioContext, setAudioContext] = useState<AudioContext | null>(
-    new AudioContext()
-  );
-
-  useEffect(() => {
-    setAudioContext((prev) => {
-      if (prev === null) {
-        return new AudioContext();
-      }
-      return prev;
-    });
-
-    return () => {
-      setAudioContext((prev) => {
-        if (prev !== null) {
-          prev.close();
-        }
-        return null;
-      });
-    };
-  }, []);
+  const audioContext = useRef<AudioContext>(new AudioContext());
 
   return (
     <WebAudioContext.Provider
-      value={{ _provider: true, data: { audioContext } }}
+      value={{ _provider: true, data: { audioContext: audioContext.current } }}
     >
       {children}
     </WebAudioContext.Provider>
