@@ -1,11 +1,8 @@
 "use-client";
 
 import {
-  useLiveKitRoom,
   useLocalParticipant,
   useMediaDevices,
-  useMediaTrack,
-  useRoomContext,
 } from "@livekit/components-react";
 import React, {
   useCallback,
@@ -80,6 +77,7 @@ export function MicrophoneProvider({ children }: Props) {
   const webAudioMicAudioElRef = useRef<HTMLAudioElement>(null);
   const mediaDevices = useMediaDevices({ kind: "audioinput" });
   const { localParticipant } = useLocalParticipant();
+  const publishingStream = useRef<MediaStreamTrack | null>(null);
 
   const microphones: MicrophoneSelection[] = useMemo(() => {
     const devices: MicrophoneSelectionDevice[] = mediaDevices.map((device) => ({
@@ -112,12 +110,9 @@ export function MicrophoneProvider({ children }: Props) {
 
   const setMuted = useCallback(
     async (muted: boolean) => {
-      if (selectedMicrophone === null) {
-        _setMuted(true);
-        return;
-      }
       if (!muted) {
-        if (selectedMicrophone.type === "device") {
+        let mediaStreamTrack: MediaStreamTrack | null = null;
+        if (selectedMicrophone?.type === "device") {
           const mediaStream = await navigator.mediaDevices.getUserMedia({
             audio: {
               deviceId: {
@@ -125,22 +120,31 @@ export function MicrophoneProvider({ children }: Props) {
               },
             },
           });
-          await localParticipant?.publishTrack(mediaStream.getAudioTracks()[0]);
-        } else if (selectedMicrophone.type === "web_audio") {
-          if (webAudioMediaStream === null) {
-            _setMuted(true);
-            return;
-          }
-          await localParticipant?.publishTrack(
-            webAudioMediaStream.getAudioTracks()[0]
-          );
+          mediaStreamTrack = mediaStream.getAudioTracks()[0];
+        } else if (selectedMicrophone?.type === "web_audio") {
+          mediaStreamTrack = webAudioMediaStream?.getAudioTracks()[0] || null;
         }
-      } else {
-        //TODO
-        //await localParticipant?.unpublishTrack();
-      }
 
-      _setMuted(muted);
+        if (publishingStream.current !== null) {
+          await localParticipant?.unpublishTrack(publishingStream.current);
+        }
+        if (mediaStreamTrack === null) {
+          _setMuted(true);
+          return;
+        }
+
+        await localParticipant?.publishTrack(mediaStreamTrack);
+        publishingStream.current = mediaStreamTrack;
+        _setMuted(false);
+      } else {
+        if (publishingStream.current === null) {
+          console.error("No publishing stream to unpublish");
+          return;
+        }
+        await localParticipant?.unpublishTrack(publishingStream.current);
+        publishingStream.current = null;
+        _setMuted(true);
+      }
     },
     [
       localParticipant,
@@ -151,14 +155,24 @@ export function MicrophoneProvider({ children }: Props) {
     ]
   );
 
+  // TODO: it's technically possible for the webAuduiMediaStream to exist
+  // before the audio element is mounted but very unlikely
   useEffect(() => {
     if (
       webAudioMediaStream !== null &&
       webAudioMicAudioElRef.current !== null
     ) {
       const audioEl = webAudioMicAudioElRef.current;
+      console.log("NEIL setting audioEl.srcObject", webAudioMediaStream);
       audioEl.srcObject = webAudioMediaStream;
       audioEl.play();
+    } else if (
+      webAudioMediaStream === null &&
+      webAudioMicAudioElRef.current !== null
+    ) {
+      console.log("NEIL setting audioEl.srcObject", webAudioMediaStream);
+      webAudioMicAudioElRef.current.srcObject = null;
+      webAudioMicAudioElRef.current.pause();
     }
   }, [webAudioMediaStream]);
 
@@ -193,7 +207,7 @@ export function useMicrophone() {
 }
 
 type SineWaveMicrophoneProps = {
-  setStream: (stream: MediaStream) => void;
+  setStream: (stream: MediaStream | null) => void;
 };
 
 function SineWaveMicrophone({ setStream }: SineWaveMicrophoneProps) {
@@ -219,6 +233,7 @@ function SineWaveMicrophone({ setStream }: SineWaveMicrophoneProps) {
         sink.current.disconnect();
         sink.current = null;
       }
+      setStream(null);
     };
 
     if (!isSineWaveSelected || audioContext === null) {

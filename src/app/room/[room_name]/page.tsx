@@ -13,8 +13,9 @@ import {
   ConnectionDetailsBody,
 } from "@/pages/api/connection_details";
 import { LiveKitRoom } from "@livekit/components-react";
-import dynamic from "next/dynamic";
 import { useCallback, useMemo, useState } from "react";
+
+const MAX_HEARABLE_DISTANCE = 100;
 
 type Props = {
   params: { room_name: string };
@@ -73,7 +74,7 @@ export default function Page({ params: { room_name } }: Props) {
         connectOptions={{ autoSubscribe: false }}
       >
         <WebAudioProvider>
-          <PlaybackProvider>
+          <PlaybackProvider maxHearableDistance={MAX_HEARABLE_DISTANCE}>
             <MicrophoneProvider>
               <div className="flex h-screen w-screen">
                 <div className="flex flex-col w-full h-full">

@@ -1,25 +1,15 @@
 "use-client";
 
-import { ParticipantList } from "@/components/ParticipantList";
 import {
-  useLiveKitRoom,
-  useLocalParticipant,
-  useMediaDevices,
-  useMediaTrack,
-  useParticipantContext,
   useRemoteParticipants,
   useRoomContext,
   useTrack,
-  useTracks,
 } from "@livekit/components-react";
 import {
   Participant,
   RemoteParticipant,
-  RemoteTrack,
   RemoteTrackPublication,
-  RoomEvent,
 } from "livekit-client";
-import { requestToBodyStream } from "next/dist/server/body-streams";
 import React, {
   useCallback,
   useContext,
@@ -28,7 +18,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useWebAudio } from "./webAudio";
 
 type Data = {
   setMyPosition: (position: { x: number; y: number }) => void;
@@ -48,33 +37,112 @@ const PlaybackContext = React.createContext({
   data: defaultValue,
 });
 
-type Props = {
-  children: React.ReactNode;
+type RemoteParticipantPlaybackSubscriptionProps = {
+  publication: RemoteTrackPublication;
+  position: { x: number; y: number };
+  myPosition: { x: number; y: number };
 };
 
+function RemoteParticipantPlaybackSubscription({
+  publication,
+  position,
+  myPosition,
+}: RemoteParticipantPlaybackSubscriptionProps) {
+  const { track } = useTrack({ pub: publication });
+  const audioEl = useRef<HTMLAudioElement | null>(null);
+
+  const attachEl = useCallback(() => {
+    if (!track) return;
+    if (!audioEl.current) return;
+    track.attach(audioEl.current);
+  }, [track]);
+
+  useEffect(() => {
+    publication.setSubscribed(true);
+  }, [publication]);
+
+  useEffect(() => {}, []);
+  return (
+    <>
+      <audio
+        ref={(el) => {
+          if (!el) return;
+          audioEl.current = el;
+          attachEl();
+        }}
+      />
+    </>
+  );
+}
+
 type RemoteParticipantPlaybackProps = {
+  maxHearableDistance: number;
   participant: RemoteParticipant;
   myPosition: { x: number; y: number };
   position: { x: number; y: number };
 };
 
 function RemoteParticipantPlayback({
+  maxHearableDistance,
   participant,
   myPosition,
   position,
 }: RemoteParticipantPlaybackProps) {
+  const distance = useMemo(() => {
+    const dx = myPosition.x - position.x;
+    const dy = myPosition.y - position.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }, [myPosition.x, myPosition.y, position.x, position.y]);
+
+  const [publication, setPublication] = useState<RemoteTrackPublication | null>(
+    null
+  );
+
+  // TODO: make this distance based
+  const hearable = useMemo(() => true, []);
+
   useEffect(() => {
-    console.log("NEIL remote participant playback", participant.identity);
-  }, [participant.identity]);
+    const onPublication = (publication: RemoteTrackPublication) => {
+      if (publication.kind !== "audio") {
+        return;
+      }
+      setPublication(publication);
+    };
+
+    // add existing tracks
+    participant.tracks.forEach((pub) => {
+      onPublication(pub);
+    });
+
+    participant.on("trackPublished", onPublication);
+
+    return () => {
+      participant.off("trackPublished", onPublication);
+    };
+  }, [participant]);
 
   return (
     <div>
-      <audio />
+      {hearable && publication && (
+        <RemoteParticipantPlaybackSubscription
+          publication={publication}
+          position={position}
+          myPosition={myPosition}
+        />
+      )}
     </div>
   );
 }
 
-export function PlaybackProvider({ children }: Props) {
+type PlaybackProviderProps = {
+  maxHearableDistance: number;
+  children: React.ReactNode;
+};
+
+export function PlaybackProvider({
+  children,
+  maxHearableDistance,
+}: PlaybackProviderProps) {
   const room = useRoomContext();
   const remoteParticipants = useRemoteParticipants({});
   const [myPosition, setMyPosition] = useState<{ x: number; y: number }>({
@@ -108,6 +176,7 @@ export function PlaybackProvider({ children }: Props) {
     });
   }, [remoteParticipants, room.participants]);
 
+  // TODO - this will happen very often, we may want to take this out of react-land
   const setPosition = useCallback(
     (participant: Participant, position: { x: number; y: number }) => {
       setPositions((prev) => {
@@ -135,6 +204,7 @@ export function PlaybackProvider({ children }: Props) {
         };
         return (
           <RemoteParticipantPlayback
+            maxHearableDistance={maxHearableDistance}
             key={rp.identity}
             participant={rp as RemoteParticipant}
             position={position}
