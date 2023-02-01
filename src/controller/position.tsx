@@ -11,15 +11,18 @@ import React, {
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import { useInterval, useRaf } from "react-use";
 
 export type PositionData = {
   setMyPosition: (position: { x: number; y: number }) => void;
+  playerPositions: Map<string, { x: number; y: number }>;
 };
 
 const defaultValue: PositionData = {
   setMyPosition: () => null,
+  playerPositions: new Map(),
 };
 
 const PositionContext = React.createContext({
@@ -35,9 +38,9 @@ export function PositionProvider({ children }: Props) {
   const { message, send } = useDataChannelMessages({ channelId: "position" });
   const myPosition = useRef<{ x: number; y: number } | null>(null);
   const remoteParticipants = useRemoteParticipants({});
-  const playerPositions = useRef<Map<string, { x: number; y: number }>>(
-    new Map()
-  );
+  const [playerPositions, setPlayerPositions] = useState<
+    Map<string, { x: number; y: number }>
+  >(new Map());
 
   useInterval(async () => {
     if (!myPosition.current) return;
@@ -57,22 +60,32 @@ export function PositionProvider({ children }: Props) {
 
   // Cleanup positions for participants that have left
   useEffect(() => {
-    const newPlayerPositions = new Map();
-    const positionIdentities = Array.from(playerPositions.current.keys());
-    for (const identity of positionIdentities) {
-      if (!remoteParticipantLookup.has(identity)) {
-        playerPositions.current.delete(identity);
+    setPlayerPositions((prev) => {
+      const positionIdentities = Array.from(prev.keys());
+      for (const identity of positionIdentities) {
+        if (!remoteParticipantLookup.has(identity)) {
+          prev.delete(identity);
+        }
       }
-    }
+
+      return new Map(prev);
+    });
   }, [remoteParticipantLookup]);
 
   useEffect(() => {
-    console.log("NEIL got message", message);
+    setPlayerPositions((prev) => {
+      if (!message?.from?.identity || !message.payload) return prev;
+      prev.set(
+        message.from.identity,
+        message.payload as { x: number; y: number }
+      );
+      return new Map(prev);
+    });
   }, [message]);
 
   return (
     <PositionContext.Provider
-      value={{ _provider: true, data: { setMyPosition } }}
+      value={{ _provider: true, data: { setMyPosition, playerPositions } }}
     >
       {children}
     </PositionContext.Provider>
