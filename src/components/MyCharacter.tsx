@@ -1,14 +1,20 @@
+import { PositionData, usePosition } from "@/controller/position";
 import { useTick } from "@pixi/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Character } from "./Character";
 
 const MAX_SPEED = 1;
 
-export function MyCharacter() {
+type Props = {
+  positionData: PositionData;
+};
+
+export function MyCharacter({ positionData }: Props) {
   const [position, setPosition] = useState<{ x: number; y: number } | null>(
     null
   );
   const inputs = useRef({ x: 0, y: 0 });
+  const sendLock = useRef(false);
 
   const keyDownListener = useRef((e: KeyboardEvent) => {
     if (e.key === "ArrowUp" || e.key === "w") {
@@ -75,6 +81,7 @@ export function MyCharacter() {
       x: prev!.x + velocity.x * delta,
       y: prev!.y + velocity.y * delta,
     }));
+    positionData.setMyPosition({ x: position.x, y: position.y });
   });
 
   if (!position) {
