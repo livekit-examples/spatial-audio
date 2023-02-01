@@ -16,11 +16,13 @@ import React, {
 import { useInterval, useRaf } from "react-use";
 
 export type PositionData = {
+  myPosition: { x: number; y: number } | null;
   setMyPosition: (position: { x: number; y: number }) => void;
   playerPositions: Map<string, { x: number; y: number }>;
 };
 
 const defaultValue: PositionData = {
+  myPosition: null,
   setMyPosition: () => null,
   playerPositions: new Map(),
 };
@@ -36,23 +38,23 @@ type Props = {
 
 export function PositionProvider({ children }: Props) {
   const { message, send } = useDataChannelMessages({ channelId: "position" });
-  const myPosition = useRef<{ x: number; y: number } | null>(null);
+  const [myPosition, setMyPosition] = useState<{ x: number; y: number } | null>(
+    null
+  );
   const remoteParticipants = useRemoteParticipants({});
   const [playerPositions, setPlayerPositions] = useState<
     Map<string, { x: number; y: number }>
   >(new Map());
 
-  useInterval(async () => {
-    if (!myPosition.current) return;
+  const sendMyPosition = useCallback(async () => {
+    if (!myPosition) return;
     await send(
-      { channelId: "position", payload: myPosition.current },
+      { channelId: "position", payload: myPosition },
       DataPacket_Kind.LOSSY
     );
-  }, 500);
+  }, [myPosition, send]);
 
-  const setMyPosition = useCallback(async (pos: { x: number; y: number }) => {
-    myPosition.current = pos;
-  }, []);
+  useInterval(sendMyPosition, 500);
 
   const remoteParticipantLookup = useMemo(() => {
     return new Set(remoteParticipants.map((p) => p.identity));
@@ -85,7 +87,10 @@ export function PositionProvider({ children }: Props) {
 
   return (
     <PositionContext.Provider
-      value={{ _provider: true, data: { setMyPosition, playerPositions } }}
+      value={{
+        _provider: true,
+        data: { setMyPosition, playerPositions, myPosition },
+      }}
     >
       {children}
     </PositionContext.Provider>

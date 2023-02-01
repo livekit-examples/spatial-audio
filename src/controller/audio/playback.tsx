@@ -1,36 +1,14 @@
 "use-client";
 
-import {
-  useRemoteParticipants,
-  useRoomContext,
-  useTrack,
-} from "@livekit/components-react";
-import {
-  Participant,
-  RemoteParticipant,
-  RemoteTrackPublication,
-} from "livekit-client";
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useRemoteParticipants, useTrack } from "@livekit/components-react";
+import { RemoteParticipant, RemoteTrackPublication } from "livekit-client";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { usePosition } from "../position";
+import { useWebAudio } from "./webAudio";
 
-type Data = {
-  setMyPosition: (position: { x: number; y: number }) => void;
-  setPosition: (
-    participant: Participant,
-    position: { x: number; y: number }
-  ) => void;
-};
+type Data = {};
 
-const defaultValue: Data = {
-  setPosition: () => null,
-  setMyPosition: () => null,
-};
+const defaultValue: Data = {};
 
 const PlaybackContext = React.createContext({
   _provider: false,
@@ -50,12 +28,49 @@ function RemoteParticipantPlaybackSubscription({
 }: RemoteParticipantPlaybackSubscriptionProps) {
   const { track } = useTrack({ pub: publication });
   const audioEl = useRef<HTMLAudioElement | null>(null);
+  const { audioContext } = useWebAudio();
 
-  const attachEl = useCallback(() => {
-    if (!track) return;
-    if (!audioEl.current) return;
+  const src = useRef<MediaStreamAudioSourceNode | null>(null);
+  const panner = useRef<PannerNode | null>(null);
+  const sink = useRef<MediaStreamAudioDestinationNode | null>(null);
+
+  useEffect(() => {
+    console.log("NEIL player position", position);
+  }, [position]);
+
+  useEffect(() => {
+    const cleanup = () => {
+      if (src.current) {
+        src.current.disconnect();
+      }
+      if (panner.current) {
+        panner.current.disconnect();
+      }
+      if (sink.current) {
+        sink.current.disconnect();
+      }
+    };
+    if (!audioContext || !track || !track.mediaStream || !audioEl.current) {
+      cleanup();
+      return;
+    }
+
+    // must attach to audio element for webrtc to play the audio
     track.attach(audioEl.current);
-  }, [track]);
+
+    // create the nodes
+    src.current = audioContext.createMediaStreamSource(track.mediaStream);
+    panner.current = audioContext.createPanner();
+    sink.current = audioContext.createMediaStreamDestination();
+
+    // connect the nodes
+    src.current.connect(panner.current);
+    panner.current.connect(sink.current);
+
+    audioEl.current.play();
+
+    return cleanup();
+  }, [audioContext, track]);
 
   useEffect(() => {
     publication.setSubscribed(true);
@@ -65,10 +80,10 @@ function RemoteParticipantPlaybackSubscription({
   return (
     <>
       <audio
+        muted={true}
         ref={(el) => {
           if (!el) return;
           audioEl.current = el;
-          attachEl();
         }}
       />
     </>
@@ -143,71 +158,25 @@ export function PlaybackProvider({
   children,
   maxHearableDistance,
 }: PlaybackProviderProps) {
-  const room = useRoomContext();
   const remoteParticipants = useRemoteParticipants({});
-  const [myPosition, setMyPosition] = useState<{ x: number; y: number }>({
-    x: Infinity,
-    y: Infinity,
-  });
-
-  // identity -> position map
-  const [positions, setPositions] = useState<
-    Map<string, { x: number; y: number }>
-  >(new Map());
-
-  // initialize or cleanup positions when participants change
-  useEffect(() => {
-    setPositions((prev) => {
-      const existing = new Set(prev);
-      const connected = new Set(remoteParticipants.map((p) => p.identity));
-      const newPositions = new Map(prev);
-      const existingArray = Array.from(existing);
-      for (const e in existingArray) {
-        if (!connected.has(e)) {
-          newPositions.delete(e);
-        }
-      }
-
-      remoteParticipants.forEach((participant) => {
-        newPositions.set(participant.identity, { x: Infinity, y: Infinity });
-      });
-
-      return newPositions;
-    });
-  }, [remoteParticipants, room.participants]);
-
-  // TODO - this will happen very often, we may want to take this out of react-land
-  const setPosition = useCallback(
-    (participant: Participant, position: { x: number; y: number }) => {
-      setPositions((prev) => {
-        if (!prev.has(participant.identity)) {
-          return prev;
-        }
-        prev.set(participant.identity, position);
-        return new Map(prev);
-      });
-    },
-    []
-  );
+  const { playerPositions, myPosition } = usePosition();
 
   return (
     <PlaybackContext.Provider
       value={{
         _provider: true,
-        data: { setPosition, setMyPosition },
+        data: {},
       }}
     >
       {remoteParticipants.map((rp) => {
-        const position = positions.get(rp.identity) || {
-          x: Infinity,
-          y: Infinity,
-        };
+        const playerPosition = playerPositions.get(rp.identity);
+        if (!myPosition || !playerPosition) return null;
         return (
           <RemoteParticipantPlayback
             maxHearableDistance={maxHearableDistance}
             key={rp.identity}
             participant={rp as RemoteParticipant}
-            position={position}
+            position={playerPosition}
             myPosition={myPosition}
           />
         );

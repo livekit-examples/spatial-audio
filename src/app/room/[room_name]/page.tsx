@@ -75,9 +75,9 @@ export default function Page({ params: { room_name } }: Props) {
         connectOptions={{ autoSubscribe: false }}
       >
         <WebAudioProvider>
-          <PlaybackProvider maxHearableDistance={MAX_HEARABLE_DISTANCE}>
-            <MicrophoneProvider>
-              <PositionProvider>
+          <PositionProvider>
+            <PlaybackProvider maxHearableDistance={MAX_HEARABLE_DISTANCE}>
+              <MicrophoneProvider>
                 <div className="flex h-screen w-screen">
                   <div className="flex flex-col w-full h-full">
                     <div className="grow flex">
@@ -93,9 +93,9 @@ export default function Page({ params: { room_name } }: Props) {
                     </div>
                   </div>
                 </div>
-              </PositionProvider>
-            </MicrophoneProvider>
-          </PlaybackProvider>
+              </MicrophoneProvider>
+            </PlaybackProvider>
+          </PositionProvider>
         </WebAudioProvider>
       </LiveKitRoom>
     </div>

@@ -1,7 +1,6 @@
 import { usePosition } from "@/controller/position";
 import { Stage } from "@pixi/react";
 import { useMemo } from "react";
-import { useMeasure } from "react-use";
 import useResizeObserver from "use-resize-observer";
 import { Character } from "./Character";
 import { MyCharacter } from "./MyCharacter";
