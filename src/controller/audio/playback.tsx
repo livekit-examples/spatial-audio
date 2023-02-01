@@ -35,10 +35,6 @@ function RemoteParticipantPlaybackSubscription({
   const sink = useRef<MediaStreamAudioDestinationNode | null>(null);
 
   useEffect(() => {
-    console.log("NEIL player position", position);
-  }, [position]);
-
-  useEffect(() => {
     const cleanup = () => {
       if (src.current) {
         src.current.disconnect();
