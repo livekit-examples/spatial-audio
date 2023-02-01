@@ -1,8 +1,8 @@
 "use client";
 
-import { MicrophoneProvider } from "@/audio/microphone";
-import { PlaybackProvider } from "@/audio/playback";
-import { WebAudioProvider } from "@/audio/webAudio";
+import { MicrophoneProvider } from "@/controller/audio/microphone";
+import { PlaybackProvider } from "@/controller/audio/playback";
+import { WebAudioProvider } from "@/controller/audio/webAudio";
 import { BottomBar } from "@/components/BottomBar";
 import { GameView } from "@/components/GameView";
 import { ParticipantList } from "@/components/ParticipantList";
@@ -14,6 +14,7 @@ import {
 } from "@/pages/api/connection_details";
 import { LiveKitRoom } from "@livekit/components-react";
 import { useCallback, useMemo, useState } from "react";
+import { PositionProvider } from "@/controller/position";
 
 const MAX_HEARABLE_DISTANCE = 100;
 
@@ -76,21 +77,23 @@ export default function Page({ params: { room_name } }: Props) {
         <WebAudioProvider>
           <PlaybackProvider maxHearableDistance={MAX_HEARABLE_DISTANCE}>
             <MicrophoneProvider>
-              <div className="flex h-screen w-screen">
-                <div className="flex flex-col w-full h-full">
-                  <div className="grow flex">
-                    <div className="grow">
-                      <GameView />
+              <PositionProvider>
+                <div className="flex h-screen w-screen">
+                  <div className="flex flex-col w-full h-full">
+                    <div className="grow flex">
+                      <div className="grow">
+                        <GameView />
+                      </div>
+                      <div className="w-1/5">
+                        <ParticipantList />
+                      </div>
                     </div>
-                    <div className="w-1/5">
-                      <ParticipantList />
+                    <div className="bg-neutral">
+                      <BottomBar />
                     </div>
-                  </div>
-                  <div className="bg-neutral">
-                    <BottomBar />
                   </div>
                 </div>
-              </div>
+              </PositionProvider>
             </MicrophoneProvider>
           </PlaybackProvider>
         </WebAudioProvider>

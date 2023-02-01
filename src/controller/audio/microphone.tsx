@@ -216,7 +216,6 @@ function SineWaveMicrophone({ onStream }: SineWaveMicrophoneProps) {
   const { audioContext } = useWebAudio();
   const oscillator = useRef<OscillatorNode | null>(null);
   const sink = useRef<MediaStreamAudioDestinationNode | null>(null);
-  const audioElement = useRef<HTMLAudioElement | null>(null);
 
   const cleanupWebAudio = useRef(() => {
     if (oscillator.current !== null) {
@@ -230,19 +229,7 @@ function SineWaveMicrophone({ onStream }: SineWaveMicrophoneProps) {
     }
   });
 
-  const attachStream = useRef(() => {
-    if (!audioElement.current || !sink.current) return;
-    audioElement.current.srcObject = sink.current.stream;
-    audioElement.current.play();
-  });
-
   const createWebAudio = useRef(() => {
-    if (!audioElement.current) return;
-    if (
-      audioElement.current.srcObject === sink.current?.stream &&
-      audioElement.current.srcObject
-    )
-      return;
     if (audioContext === null) return;
     oscillator.current = audioContext.createOscillator();
     sink.current = audioContext.createMediaStreamDestination();
@@ -253,24 +240,13 @@ function SineWaveMicrophone({ onStream }: SineWaveMicrophoneProps) {
 
   // cleanup on unmount
   useEffect(() => {
-    const cu = cleanupWebAudio.current;
     createWebAudio.current();
+    // apease the linter by storing cleanup in a variable that won't change before cleanup (even though we know it won't)
+    const cu = cleanupWebAudio.current;
     return () => {
       cu();
     };
   }, [cleanupWebAudio, createWebAudio]);
 
-  return (
-    <>
-      {audioContext && (
-        <audio
-          ref={(el) => {
-            if (!el) return;
-            audioElement.current = el;
-          }}
-          muted={true}
-        />
-      )}
-    </>
-  );
+  return null;
 }
