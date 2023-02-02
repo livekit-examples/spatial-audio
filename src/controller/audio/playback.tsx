@@ -3,6 +3,7 @@
 import { useRemoteParticipants, useTrack } from "@livekit/components-react";
 import { RemoteParticipant, RemoteTrackPublication } from "livekit-client";
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useMount, useUnmount } from "react-use";
 import { usePosition } from "../position";
 import { useWebAudio } from "./webAudio";
 
@@ -32,40 +33,67 @@ function RemoteParticipantPlaybackSubscription({
 
   const src = useRef<MediaStreamAudioSourceNode | null>(null);
   const panner = useRef<PannerNode | null>(null);
-  const sink = useRef<MediaStreamAudioDestinationNode | null>(null);
+
+  useUnmount(() => {
+    if (src.current) {
+      src.current.disconnect();
+      src.current = null;
+    }
+    if (panner.current) {
+      panner.current.disconnect();
+      panner.current = null;
+    }
+  });
 
   useEffect(() => {
-    const cleanup = () => {
-      if (src.current) {
-        src.current.disconnect();
-      }
-      if (panner.current) {
-        panner.current.disconnect();
-      }
-      if (sink.current) {
-        sink.current.disconnect();
-      }
+    if (!panner.current) {
+      return;
+    }
+    const relativePosition = {
+      x: position.x - myPosition.x,
+      y: position.y - myPosition.y,
     };
+
+    panner.current.positionX.setValueAtTime(relativePosition.x, 0);
+    panner.current.positionZ.setValueAtTime(relativePosition.y, 0);
+  }, [myPosition.x, myPosition.y, position.x, position.y]);
+
+  useEffect(() => {
     if (!audioContext || !track || !track.mediaStream || !audioEl.current) {
-      cleanup();
+      console.log("NEIL early out", track, track?.mediaStream);
       return;
     }
 
-    // must attach to audio element for webrtc to play the audio
-    track.attach(audioEl.current);
+    if (src.current?.mediaStream === track.mediaStream) {
+      console.log("NEIL early out 2", track, track?.mediaStream);
+      return;
+    }
 
-    // create the nodes
-    src.current = audioContext.createMediaStreamSource(track.mediaStream);
+    console.log("NEIL graph", track as any);
+
+    audioEl.current.srcObject = track.mediaStream;
+    src.current = audioContext.createMediaStreamSource(
+      audioEl.current.srcObject as any
+    );
+
     panner.current = audioContext.createPanner();
-    sink.current = audioContext.createMediaStreamDestination();
+    panner.current.coneOuterAngle = 360;
+    panner.current.coneInnerAngle = 360;
+    panner.current.positionX.setValueAtTime(0, 0);
+    panner.current.positionY.setValueAtTime(0, 0);
+    panner.current.positionZ.setValueAtTime(0, 0);
+    panner.current.coneOuterGain = 1;
+    panner.current.refDistance = 1;
+    panner.current.maxDistance = 100;
 
-    // connect the nodes
-    src.current.connect(panner.current);
-    panner.current.connect(sink.current);
-
+    src.current.connect(panner.current).connect(audioContext.destination);
     audioEl.current.play();
-
-    return cleanup();
+    audioEl.current.autoplay = true;
+    audioEl.current.muted = false;
+    audioEl.current.volume = 0;
+    if (audioContext.state !== "running") {
+      audioContext.resume();
+    }
   }, [audioContext, track]);
 
   useEffect(() => {
@@ -75,13 +103,7 @@ function RemoteParticipantPlaybackSubscription({
   useEffect(() => {}, []);
   return (
     <>
-      <audio
-        muted={true}
-        ref={(el) => {
-          if (!el) return;
-          audioEl.current = el;
-        }}
-      />
+      <audio muted={true} ref={audioEl} />
     </>
   );
 }
