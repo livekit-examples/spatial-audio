@@ -3,7 +3,7 @@
 import { useRemoteParticipants, useTrack } from "@livekit/components-react";
 import { RemoteParticipant, RemoteTrackPublication } from "livekit-client";
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { useMount, useUnmount } from "react-use";
+import { useUnmount } from "react-use";
 import { usePosition } from "../position";
 import { useWebAudio } from "./webAudio";
 
@@ -59,17 +59,15 @@ function RemoteParticipantPlaybackSubscription({
   }, [myPosition.x, myPosition.y, position.x, position.y]);
 
   useEffect(() => {
-    if (!audioContext || !track || !track.mediaStream || !audioEl.current) {
-      console.log("NEIL early out", track, track?.mediaStream);
+    if (
+      !audioContext ||
+      !track ||
+      !track.mediaStream ||
+      !audioEl.current ||
+      src.current?.mediaStream !== track.mediaStream
+    ) {
       return;
     }
-
-    if (src.current?.mediaStream === track.mediaStream) {
-      console.log("NEIL early out 2", track, track?.mediaStream);
-      return;
-    }
-
-    console.log("NEIL graph", track as any);
 
     audioEl.current.srcObject = track.mediaStream;
     src.current = audioContext.createMediaStreamSource(
@@ -91,9 +89,6 @@ function RemoteParticipantPlaybackSubscription({
     audioEl.current.autoplay = true;
     audioEl.current.muted = false;
     audioEl.current.volume = 0;
-    if (audioContext.state !== "running") {
-      audioContext.resume();
-    }
   }, [audioContext, track]);
 
   useEffect(() => {
