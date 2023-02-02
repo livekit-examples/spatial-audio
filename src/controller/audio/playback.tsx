@@ -64,7 +64,7 @@ function RemoteParticipantPlaybackSubscription({
       !track ||
       !track.mediaStream ||
       !audioEl.current ||
-      src.current?.mediaStream !== track.mediaStream
+      src.current?.mediaStream === track.mediaStream
     ) {
       return;
     }

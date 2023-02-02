@@ -1,4 +1,5 @@
 import { usePosition } from "@/controller/position";
+import { useLocalParticipant } from "@livekit/components-react";
 import { Stage } from "@pixi/react";
 import { useMemo } from "react";
 import useResizeObserver from "use-resize-observer";
@@ -7,6 +8,7 @@ import { MyCharacter } from "./MyCharacter";
 
 export function GameView() {
   const { ref, width = 1, height = 1 } = useResizeObserver<HTMLDivElement>();
+  const { localParticipant } = useLocalParticipant();
   const positionData = usePosition();
 
   const playerPositionArray = useMemo(() => {
@@ -29,10 +31,14 @@ export function GameView() {
       >
         {/* We need to pass in the position data here because react will not keep contexts
         across different renderers. See: https://github.com/facebook/react/issues/14101 */}
-        <MyCharacter positionData={positionData} />
+        <MyCharacter
+          username={localParticipant.identity}
+          positionData={positionData}
+        />
 
         {playerPositionArray.map((player) => (
           <Character
+            username={player.identity}
             key={player.identity}
             x={player.position.x}
             y={player.position.y}

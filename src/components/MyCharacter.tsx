@@ -6,10 +6,11 @@ import { Character } from "./Character";
 const MAX_SPEED = 1;
 
 type Props = {
+  username: string;
   positionData: PositionData;
 };
 
-export function MyCharacter({ positionData }: Props) {
+export function MyCharacter({ positionData, username }: Props) {
   const [position, setPosition] = useState<{ x: number; y: number } | null>(
     null
   );
@@ -88,5 +89,5 @@ export function MyCharacter({ positionData }: Props) {
     return null;
   }
 
-  return <Character x={position.x} y={position.y} />;
+  return <Character x={position.x} y={position.y} username={username} />;
 }
