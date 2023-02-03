@@ -68,18 +68,12 @@ export function NetcodeProvider({ children }: Props) {
 
   const sendMyPosition = useCallback(async () => {
     if (!myPosition) return;
-    await positionSend(
-      { channelId: "position", payload: myPosition },
-      DataPacket_Kind.LOSSY
-    );
+    await positionSend(myPosition, DataPacket_Kind.LOSSY);
   }, [myPosition, positionSend]);
 
   const sendMyAnimation = useCallback(async () => {
     if (!myAnimation) return;
-    await animationSend(
-      { channelId: "animation", payload: myAnimation },
-      DataPacket_Kind.LOSSY
-    );
+    await animationSend(myAnimation, DataPacket_Kind.LOSSY);
   }, [myAnimation, animationSend]);
 
   const remoteParticipantLookup = useMemo(() => {
