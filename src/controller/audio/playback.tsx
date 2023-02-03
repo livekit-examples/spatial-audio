@@ -4,7 +4,7 @@ import { useRemoteParticipants, useTrack } from "@livekit/components-react";
 import { RemoteParticipant, RemoteTrackPublication } from "livekit-client";
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useUnmount } from "react-use";
-import { usePosition } from "../position";
+import { useNetcode } from "../netcode";
 import { useWebAudio } from "./webAudio";
 
 type Data = {};
@@ -172,7 +172,15 @@ export function PlaybackProvider({
   maxHearableDistance,
 }: PlaybackProviderProps) {
   const remoteParticipants = useRemoteParticipants({});
-  const { playerPositions, myPosition } = usePosition();
+  const { remotePlayers, myPosition } = useNetcode();
+
+  const remoteParticipantLookup = useMemo(() => {
+    const lookup = new Map<string, RemoteParticipant>();
+    remoteParticipants.forEach((rp) => {
+      lookup.set(rp.identity, rp as RemoteParticipant);
+    });
+    return lookup;
+  }, [remoteParticipants]);
 
   return (
     <PlaybackContext.Provider
@@ -181,15 +189,15 @@ export function PlaybackProvider({
         data: {},
       }}
     >
-      {remoteParticipants.map((rp) => {
-        const playerPosition = playerPositions.get(rp.identity);
-        if (!myPosition || !playerPosition) return null;
+      {remotePlayers.map((player) => {
+        const rp = remoteParticipantLookup.get(player.identity);
+        if (!rp || !myPosition) return null;
         return (
           <RemoteParticipantPlayback
             maxHearableDistance={maxHearableDistance}
-            key={rp.identity}
+            key={player.identity}
             participant={rp as RemoteParticipant}
-            position={playerPosition}
+            position={player.position}
             myPosition={myPosition}
           />
         );

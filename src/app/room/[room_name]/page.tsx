@@ -14,7 +14,7 @@ import {
 } from "@/pages/api/connection_details";
 import { LiveKitRoom } from "@livekit/components-react";
 import { useCallback, useMemo, useState } from "react";
-import { PositionProvider } from "@/controller/position";
+import { NetcodeProvider } from "@/controller/netcode";
 
 const MAX_HEARABLE_DISTANCE = 100;
 
@@ -75,7 +75,7 @@ export default function Page({ params: { room_name } }: Props) {
         connectOptions={{ autoSubscribe: false }}
       >
         <WebAudioProvider>
-          <PositionProvider>
+          <NetcodeProvider>
             <PlaybackProvider maxHearableDistance={MAX_HEARABLE_DISTANCE}>
               <MicrophoneProvider>
                 <div className="flex h-screen w-screen">
@@ -95,7 +95,7 @@ export default function Page({ params: { room_name } }: Props) {
                 </div>
               </MicrophoneProvider>
             </PlaybackProvider>
-          </PositionProvider>
+          </NetcodeProvider>
         </WebAudioProvider>
       </LiveKitRoom>
     </div>

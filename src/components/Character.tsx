@@ -1,23 +1,31 @@
-import { AnimatedSprite, Container, Graphics, Sprite, Text } from "@pixi/react";
+import { AnimatedSprite, Container, Text } from "@pixi/react";
 import {
   BaseTexture,
-  Circle,
-  DisplayObject,
   Graphics as G,
   Spritesheet,
   TextStyle,
   Texture,
 } from "pixi.js";
-import { useCallback, useEffect, useState } from "react";
-import { useMount } from "react-use";
+import { useEffect, useState } from "react";
+
+export type AnimationState =
+  | "walk_down"
+  | "walk_up"
+  | "walk_right"
+  | "walk_left"
+  | "idle_down"
+  | "idle_up"
+  | "idle_right"
+  | "idle_left";
 
 type Props = {
   x: number;
   y: number;
   username: string;
+  animation: AnimationState;
 };
 
-export function Character({ x, y, username }: Props) {
+export function Character({ x, y, username, animation }: Props) {
   const [animations, setAnimations] = useState<{
     [key: string]: Texture[];
   } | null>(null);
@@ -36,6 +44,10 @@ export function Character({ x, y, username }: Props) {
         walk_up: ["40", "41", "42", "43", "44", "45"],
         walk_right: ["48", "49", "50", "51", "52", "53"],
         walk_left: ["56", "57", "58", "59", "60", "61"],
+        idle_down: ["0"],
+        idle_up: ["8"],
+        idle_right: ["16"],
+        idle_left: ["32"],
       },
     };
 
@@ -96,7 +108,7 @@ export function Character({ x, y, username }: Props) {
           anchor={[0.5, 0.5]}
           isPlaying={true}
           animationSpeed={0.1}
-          textures={animations["walk_right"]}
+          textures={animations[animation]}
         />
       )}
     </Container>

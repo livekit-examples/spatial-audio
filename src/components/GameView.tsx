@@ -1,4 +1,4 @@
-import { usePosition } from "@/controller/position";
+import { useNetcode } from "@/controller/netcode";
 import { useLocalParticipant } from "@livekit/components-react";
 import { Stage } from "@pixi/react";
 import { useMemo } from "react";
@@ -9,15 +9,7 @@ import { MyCharacter } from "./MyCharacter";
 export function GameView() {
   const { ref, width = 1, height = 1 } = useResizeObserver<HTMLDivElement>();
   const { localParticipant } = useLocalParticipant();
-  const positionData = usePosition();
-
-  const playerPositionArray = useMemo(() => {
-    const keys = Array.from(positionData.playerPositions.keys());
-    return keys.map((key) => ({
-      identity: key,
-      position: positionData.playerPositions.get(key)!,
-    }));
-  }, [positionData.playerPositions]);
+  const netcodeData = useNetcode();
 
   return (
     <div ref={ref} className="relative h-full w-full bg-red-400">
@@ -33,15 +25,16 @@ export function GameView() {
         across different renderers. See: https://github.com/facebook/react/issues/14101 */}
         <MyCharacter
           username={localParticipant.identity}
-          positionData={positionData}
+          netcode={netcodeData}
         />
 
-        {playerPositionArray.map((player) => (
+        {netcodeData.remotePlayers.map((player) => (
           <Character
             username={player.identity}
             key={player.identity}
             x={player.position.x}
             y={player.position.y}
+            animation={player.animation}
           />
         ))}
       </Stage>

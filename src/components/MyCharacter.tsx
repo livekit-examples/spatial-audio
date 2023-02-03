@@ -1,21 +1,21 @@
-import { PositionData, usePosition } from "@/controller/position";
+import { NetcodeData } from "@/controller/netcode";
 import { useTick } from "@pixi/react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Character } from "./Character";
+import { useEffect, useRef, useState } from "react";
+import { AnimationState, Character } from "./Character";
 
 const MAX_SPEED = 1;
 
 type Props = {
   username: string;
-  positionData: PositionData;
+  netcode: NetcodeData;
 };
 
-export function MyCharacter({ positionData, username }: Props) {
+export function MyCharacter({ netcode, username }: Props) {
   const [position, setPosition] = useState<{ x: number; y: number } | null>(
     null
   );
   const inputs = useRef({ x: 0, y: 0 });
-  const sendLock = useRef(false);
+  const [animation, setAnimation] = useState<AnimationState>("idle_down");
 
   const keyDownListener = useRef((e: KeyboardEvent) => {
     if (e.key === "ArrowUp" || e.key === "w") {
@@ -82,12 +82,19 @@ export function MyCharacter({ positionData, username }: Props) {
       x: prev!.x + velocity.x * delta,
       y: prev!.y + velocity.y * delta,
     }));
-    positionData.setMyPosition({ x: position.x, y: position.y });
+    netcode.setMyPosition({ x: position.x, y: position.y });
   });
 
   if (!position) {
     return null;
   }
 
-  return <Character x={position.x} y={position.y} username={username} />;
+  return (
+    <Character
+      x={position.x}
+      y={position.y}
+      username={username}
+      animation={animation}
+    />
+  );
 }
