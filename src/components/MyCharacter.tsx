@@ -105,9 +105,12 @@ export function MyCharacter({ netcode, username }: Props) {
     } else if (velocity.y < 0 && Math.abs(velocity.y) > Math.abs(velocity.x)) {
       setAnimation("walk_up");
     }
-
-    netcode.setMyPosition({ x: position.x, y: position.y });
   });
+
+  useEffect(() => {
+    netcode.setMyPosition(position || { x: 0, y: 0 });
+    netcode.setMyAnimation(animation);
+  }, [position, animation, netcode]);
 
   if (!position) {
     return null;

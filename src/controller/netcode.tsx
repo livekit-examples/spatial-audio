@@ -150,7 +150,7 @@ export function NetcodeProvider({ children }: Props) {
       res.push({
         identity,
         position: _interpolatedPositions.current.get(identity)!,
-        animation: "idle_down",
+        animation: _animations.current.get(identity) || "idle_down",
       });
     }
     setRemotePlayers(res);
