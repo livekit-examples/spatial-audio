@@ -74,8 +74,6 @@ export function Character({ x, y, username, animation }: Props) {
       }
     }
 
-    console.log(atlasData);
-
     const spriteSheet = new Spritesheet(
       BaseTexture.from(atlasData.meta.image),
       atlasData
@@ -103,14 +101,29 @@ export function Character({ x, y, username, animation }: Props) {
         text={username}
         style={new TextStyle({ fill: "0xffffff" })}
       />
-      {animations && (
-        <AnimatedSprite
-          anchor={[0.5, 0.5]}
-          isPlaying={true}
-          animationSpeed={0.1}
-          textures={animations[animation]}
-        />
-      )}
+      {/* Must render a new AnimatedSprite when changing animations, possibly a PIXI limitation/bug */}
+      {animations &&
+        [
+          "idle_down",
+          "idle_up",
+          "idle_right",
+          "idle_left",
+          "walk_down",
+          "walk_up",
+          "walk_left",
+          "walk_right",
+        ].map(
+          (a) =>
+            a === animation && (
+              <AnimatedSprite
+                anchor={[0.5, 0.5]}
+                isPlaying={true}
+                animationSpeed={0.1}
+                textures={animations[a]}
+                key={a}
+              />
+            )
+        )}
     </Container>
   );
 }

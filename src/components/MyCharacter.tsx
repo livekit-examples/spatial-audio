@@ -71,8 +71,21 @@ export function MyCharacter({ netcode, username }: Props) {
 
     const magnitude = Math.sqrt(inputs.current.x ** 2 + inputs.current.y ** 2);
     if (magnitude === 0) {
+      setAnimation((prev) => {
+        if (prev === "walk_up") {
+          return "idle_up";
+        } else if (prev === "walk_down") {
+          return "idle_down";
+        } else if (prev === "walk_left") {
+          return "idle_left";
+        } else if (prev === "walk_right") {
+          return "idle_right";
+        }
+        return prev;
+      });
       return;
     }
+
     const velocity = {
       x: (inputs.current.x * MAX_SPEED) / magnitude,
       y: (inputs.current.y * MAX_SPEED) / magnitude,
@@ -82,6 +95,17 @@ export function MyCharacter({ netcode, username }: Props) {
       x: prev!.x + velocity.x * delta,
       y: prev!.y + velocity.y * delta,
     }));
+
+    if (velocity.x > 0 && Math.abs(velocity.x) > Math.abs(velocity.y)) {
+      setAnimation("walk_right");
+    } else if (velocity.x < 0 && Math.abs(velocity.x) > Math.abs(velocity.y)) {
+      setAnimation("walk_left");
+    } else if (velocity.y > 0 && Math.abs(velocity.y) > Math.abs(velocity.x)) {
+      setAnimation("walk_down");
+    } else if (velocity.y < 0 && Math.abs(velocity.y) > Math.abs(velocity.x)) {
+      setAnimation("walk_up");
+    }
+
     netcode.setMyPosition({ x: position.x, y: position.y });
   });
 
