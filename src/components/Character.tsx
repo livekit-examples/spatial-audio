@@ -93,7 +93,7 @@ export function Character({ x, y, username, animation }: Props) {
     // @ts-ignore
     // pixi-react types don't support React 18 yet
     // See: https://github.com/pixijs/pixi-react/issues/350
-    <Container position={[x, y]}>
+    <Container position={[x, y]} zIndex={y}>
       <Text
         anchor={[0.5, 0.5]}
         x={0}

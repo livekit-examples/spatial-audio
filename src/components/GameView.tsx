@@ -1,6 +1,6 @@
 import { useNetcode } from "@/controller/netcode";
 import { useLocalParticipant } from "@livekit/components-react";
-import { Stage } from "@pixi/react";
+import { Container, Stage } from "@pixi/react";
 import { useMemo } from "react";
 import useResizeObserver from "use-resize-observer";
 import { Character } from "./Character";
@@ -21,22 +21,25 @@ export function GameView() {
         height={height}
         options={{ resolution: 2 }}
       >
-        {/* We need to pass in the position data here because react will not keep contexts
+        {/* @ts-ignore */}
+        <Container sortableChildren={true}>
+          {/* We need to pass in the position data here because react will not keep contexts
         across different renderers. See: https://github.com/facebook/react/issues/14101 */}
-        <MyCharacter
-          username={localParticipant.identity}
-          netcode={netcodeData}
-        />
-
-        {netcodeData.remotePlayers.map((player) => (
-          <Character
-            username={player.identity}
-            key={player.identity}
-            x={player.position.x}
-            y={player.position.y}
-            animation={player.animation}
+          <MyCharacter
+            username={localParticipant.identity}
+            netcode={netcodeData}
           />
-        ))}
+
+          {netcodeData.remotePlayers.map((player) => (
+            <Character
+              username={player.identity}
+              key={player.identity}
+              x={player.position.x}
+              y={player.position.y}
+              animation={player.animation}
+            />
+          ))}
+        </Container>
       </Stage>
     </div>
   );
