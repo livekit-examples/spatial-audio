@@ -18,11 +18,11 @@ type Props = {
 };
 
 export function Character({ x, y, username }: Props) {
-  const [walkDownTextures, setWalkDownTextures] = useState<Texture[] | null>(
-    null
-  );
+  const [animations, setAnimations] = useState<{
+    [key: string]: Texture[];
+  } | null>(null);
 
-  useMount(() => {
+  useEffect(() => {
     const atlasData = {
       frames: {},
       meta: {
@@ -32,13 +32,16 @@ export function Character({ x, y, username }: Props) {
         scale: "0.5",
       },
       animations: {
-        walk_down: ["1", "2"], //array of frames by name
+        walk_down: ["32", "33", "34", "35", "36", "37"],
+        walk_up: ["40", "41", "42", "43", "44", "45"],
+        walk_right: ["48", "49", "50", "51", "52", "53"],
+        walk_left: ["56", "57", "58", "59", "60", "61"],
       },
     };
 
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
-        (atlasData.frames as any)[`${row * 16 + col + 1}`] = {
+        (atlasData.frames as any)[`${row * 8 + col}`] = {
           frame: {
             x: col * 64,
             y: row * 64,
@@ -67,36 +70,35 @@ export function Character({ x, y, username }: Props) {
     );
 
     spriteSheet.parse().then((p) => {
-      setWalkDownTextures(spriteSheet.animations["walk_down"]);
+      setAnimations(spriteSheet.animations);
     });
-  });
 
-  const draw = useCallback((g: G) => {
-    g.clear();
-    g.beginFill(0xff3300);
-    g.drawCircle(0, 0, 10);
-    g.endFill();
+    return () => {
+      setAnimations(null);
+      spriteSheet.destroy();
+    };
   }, []);
 
   return (
     // @ts-ignore
     // pixi-react types don't support React 18 yet
     // See: https://github.com/pixijs/pixi-react/issues/350
-    <Container anchor={[0.5, 0.5]} position={[x, y]}>
+    <Container position={[x, y]}>
       <Text
+        anchor={[0.5, 0.5]}
         x={0}
-        y={0}
+        y={-60}
         text={username}
         style={new TextStyle({ fill: "0xffffff" })}
       />
-      {walkDownTextures && (
+      {animations && (
         <AnimatedSprite
+          anchor={[0.5, 0.5]}
           isPlaying={true}
-          animationSpeed={0.01}
-          textures={walkDownTextures}
+          animationSpeed={0.1}
+          textures={animations["walk_right"]}
         />
       )}
-      <Graphics draw={draw} />
     </Container>
   );
 }
