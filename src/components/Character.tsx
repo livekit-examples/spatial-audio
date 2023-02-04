@@ -47,7 +47,7 @@ export function Character({ x, y, username, animation }: Props) {
         idle_down: ["0"],
         idle_up: ["8"],
         idle_right: ["16"],
-        idle_left: ["32"],
+        idle_left: ["24"],
       },
     };
 

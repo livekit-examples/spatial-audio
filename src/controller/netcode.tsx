@@ -2,10 +2,11 @@
 
 import { AnimationState } from "@/components/Character";
 import {
+  useConnectionState,
   useDataChannelMessages,
   useRemoteParticipants,
 } from "@livekit/components-react";
-import { DataPacket_Kind } from "livekit-client";
+import { ConnectionState, DataPacket_Kind } from "livekit-client";
 import React, {
   useCallback,
   useContext,
@@ -55,6 +56,7 @@ export function NetcodeProvider({ children }: Props) {
   const [myPosition, setMyPosition] = useState<{ x: number; y: number } | null>(
     null
   );
+  const connectionState = useConnectionState();
   const [myAnimation, setMyAnimation] = useState<AnimationState>("idle_down");
   const remoteParticipants = useRemoteParticipants({});
   const _playerPositions = useRef<Map<string, { x: number; y: number }>>(
@@ -66,14 +68,27 @@ export function NetcodeProvider({ children }: Props) {
   const _animations = useRef<Map<string, AnimationState>>(new Map());
   const [remotePlayers, setRemotePlayers] = useState<RemotePlayer[]>([]);
 
+  const positionSendLock = useRef(false);
+  const animationSendLock = useRef(false);
+
   const sendMyPosition = useCallback(async () => {
-    if (!myPosition) return;
-    await positionSend(myPosition, DataPacket_Kind.LOSSY);
+    if (!myPosition || positionSendLock.current) return;
+    positionSendLock.current = true;
+    try {
+      await positionSend(myPosition, DataPacket_Kind.LOSSY);
+    } finally {
+      positionSendLock.current = false;
+    }
   }, [myPosition, positionSend]);
 
   const sendMyAnimation = useCallback(async () => {
-    if (!myAnimation) return;
-    await animationSend(myAnimation, DataPacket_Kind.LOSSY);
+    if (!myAnimation || animationSendLock.current) return;
+    animationSendLock.current = true;
+    try {
+      await animationSend(myAnimation, DataPacket_Kind.LOSSY);
+    } finally {
+      animationSendLock.current = false;
+    }
   }, [myAnimation, animationSend]);
 
   const remoteParticipantLookup = useMemo(() => {
@@ -162,9 +177,10 @@ export function NetcodeProvider({ children }: Props) {
   }, [interpolatePositions, updateRemotePlayers]);
 
   const sendUpdate = useCallback(() => {
+    if (connectionState !== ConnectionState.Connected) return;
     sendMyPosition();
     sendMyAnimation();
-  }, [sendMyAnimation, sendMyPosition]);
+  }, [connectionState, sendMyAnimation, sendMyPosition]);
 
   useInterval(sendUpdate, 100);
   useInterval(update, 1000 / 30);

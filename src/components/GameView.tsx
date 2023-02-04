@@ -22,7 +22,7 @@ export function GameView() {
         options={{ resolution: 2 }}
       >
         {/* @ts-ignore */}
-        <Container sortableChildren={true}>
+        <Container anchor={[0.5, 0.5]} sortableChildren={true}>
           {/* We need to pass in the position data here because react will not keep contexts
         across different renderers. See: https://github.com/facebook/react/issues/14101 */}
           <MyCharacter
