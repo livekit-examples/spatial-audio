@@ -15,6 +15,7 @@ import {
 import { LiveKitRoom } from "@livekit/components-react";
 import { useCallback, useMemo, useState } from "react";
 import { NetcodeProvider } from "@/controller/netcode";
+import { toast, Toaster } from "react-hot-toast";
 
 const MAX_HEARABLE_DISTANCE = 100;
 
@@ -33,16 +34,17 @@ export default function Page({ params: { room_name } }: Props) {
   const requestConnectionDetails = useCallback(
     async (username: string) => {
       const body: ConnectionDetailsBody = { room_name, username };
-      try {
-        const response = await fetch("/api/connection_details", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
+      const response = await fetch("/api/connection_details", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (response.status === 200) {
         return response.json();
-      } catch (e) {
-        console.log("NEIL error", e);
       }
+
+      const { error } = await response.json();
+      throw error;
     },
     [room_name]
   );
@@ -51,14 +53,21 @@ export default function Page({ params: { room_name } }: Props) {
   if (connectionDetails === null) {
     return (
       <div className="w-screen h-screen flex flex-col items-center justify-center">
+        <Toaster />
         <h2 className="text-4xl mb-4">{humanRoomName}</h2>
         <RoomInfo roomName={room_name} />
         <div className="divider"></div>
         <UsernameInput
           submitText="Join Room"
           onSubmit={async (username) => {
-            const connectionDetails = await requestConnectionDetails(username);
-            setConnectionDetails(connectionDetails);
+            try {
+              const connectionDetails = await requestConnectionDetails(
+                username
+              );
+              setConnectionDetails(connectionDetails);
+            } catch (e: any) {
+              toast.error(e);
+            }
           }}
         />
       </div>
