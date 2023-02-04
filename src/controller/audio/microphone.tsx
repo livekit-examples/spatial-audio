@@ -10,7 +10,6 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from "react";
 import { useWebAudio } from "./webAudio";
 
@@ -169,6 +168,16 @@ export function MicrophoneProvider({ children }: Props) {
     },
     [getTrack, publishTrack, unpublishTrack]
   );
+
+  // if the user has not selected a microphone, select the default one
+  useEffect(() => {
+    setSelectedMicrophoneIndex((prev) => {
+      if (prev === -1) {
+        return microphones.findIndex((m) => m.id === "default");
+      }
+      return prev;
+    });
+  }, [microphones]);
 
   return (
     <MicrophoneContext.Provider
