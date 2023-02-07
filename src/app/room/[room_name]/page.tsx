@@ -17,7 +17,7 @@ import { useCallback, useMemo, useState } from "react";
 import { NetcodeProvider } from "@/controller/netcode";
 import { toast, Toaster } from "react-hot-toast";
 
-const MAX_HEARABLE_DISTANCE = 100;
+const MAX_HEARABLE_DISTANCE = 300;
 
 type Props = {
   params: { room_name: string };

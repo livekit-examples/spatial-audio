@@ -2,8 +2,14 @@
 
 import { useRemoteParticipants, useTrack } from "@livekit/components-react";
 import { RemoteParticipant, RemoteTrackPublication } from "livekit-client";
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { useUnmount } from "react-use";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useNetcode } from "../netcode";
 import { useWebAudio } from "./webAudio";
 
@@ -22,7 +28,7 @@ type RemoteParticipantPlaybackSubscriptionProps = {
   myPosition: { x: number; y: number };
 };
 
-function RemoteParticipantPlaybackSubscription({
+function RemoteParticipantPlaybackAudio({
   publication,
   position,
   myPosition,
@@ -34,7 +40,7 @@ function RemoteParticipantPlaybackSubscription({
   const src = useRef<MediaStreamAudioSourceNode | null>(null);
   const panner = useRef<PannerNode | null>(null);
 
-  useUnmount(() => {
+  const cleanupNodes = useCallback(() => {
     if (src.current) {
       src.current.disconnect();
       src.current = null;
@@ -43,8 +49,50 @@ function RemoteParticipantPlaybackSubscription({
       panner.current.disconnect();
       panner.current = null;
     }
-  });
+  }, []);
 
+  const connectNodes = useCallback(() => {
+    if (!audioContext || !track || !track.mediaStream || !audioEl.current) {
+      return;
+    }
+
+    if (src.current || panner.current) {
+      cleanupNodes();
+    }
+
+    audioEl.current.srcObject = track.mediaStream;
+    src.current = audioContext.createMediaStreamSource(
+      audioEl.current.srcObject as any
+    );
+
+    panner.current = audioContext.createPanner();
+    panner.current.coneOuterAngle = 360;
+    panner.current.coneInnerAngle = 360;
+    panner.current.positionX.setValueAtTime(1000, 0); // set far away initially so we don't hear it at full volume
+    panner.current.positionY.setValueAtTime(0, 0);
+    panner.current.positionZ.setValueAtTime(0, 0);
+    panner.current.distanceModel = "exponential";
+    panner.current.coneOuterGain = 1;
+    panner.current.refDistance = 100;
+    panner.current.maxDistance = 500;
+    panner.current.rolloffFactor = 2;
+
+    src.current.connect(panner.current).connect(audioContext.destination);
+    audioEl.current.play();
+    audioEl.current.autoplay = true;
+    audioEl.current.muted = false;
+    audioEl.current.volume = 0;
+  }, [audioContext, cleanupNodes, track]);
+
+  useEffect(() => {
+    connectNodes();
+
+    return () => {
+      cleanupNodes();
+    };
+  }, [cleanupNodes, connectNodes]);
+
+  // update position
   useEffect(() => {
     if (!panner.current) {
       return;
@@ -59,40 +107,11 @@ function RemoteParticipantPlaybackSubscription({
   }, [myPosition.x, myPosition.y, position.x, position.y]);
 
   useEffect(() => {
-    if (
-      !audioContext ||
-      !track ||
-      !track.mediaStream ||
-      !audioEl.current ||
-      src.current?.mediaStream === track.mediaStream
-    ) {
-      return;
-    }
-
-    audioEl.current.srcObject = track.mediaStream;
-    src.current = audioContext.createMediaStreamSource(
-      audioEl.current.srcObject as any
-    );
-
-    panner.current = audioContext.createPanner();
-    panner.current.coneOuterAngle = 360;
-    panner.current.coneInnerAngle = 360;
-    panner.current.positionX.setValueAtTime(0, 0);
-    panner.current.positionY.setValueAtTime(0, 0);
-    panner.current.positionZ.setValueAtTime(0, 0);
-    panner.current.coneOuterGain = 1;
-    panner.current.refDistance = 1;
-    panner.current.maxDistance = 100;
-
-    src.current.connect(panner.current).connect(audioContext.destination);
-    audioEl.current.play();
-    audioEl.current.autoplay = true;
-    audioEl.current.muted = false;
-    audioEl.current.volume = 0;
-  }, [audioContext, track]);
-
-  useEffect(() => {
     publication.setSubscribed(true);
+
+    return () => {
+      publication.setSubscribed(false);
+    };
   }, [publication]);
 
   useEffect(() => {}, []);
@@ -127,7 +146,10 @@ function RemoteParticipantPlayback({
   );
 
   // TODO: make this distance based
-  const hearable = useMemo(() => true, []);
+  const hearable = useMemo(
+    () => distance <= maxHearableDistance,
+    [distance, maxHearableDistance]
+  );
 
   useEffect(() => {
     const onPublication = (publication: RemoteTrackPublication) => {
@@ -152,7 +174,7 @@ function RemoteParticipantPlayback({
   return (
     <div>
       {hearable && publication && (
-        <RemoteParticipantPlaybackSubscription
+        <RemoteParticipantPlaybackAudio
           publication={publication}
           position={position}
           myPosition={myPosition}
