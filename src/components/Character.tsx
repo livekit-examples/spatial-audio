@@ -6,7 +6,7 @@ import {
   TextStyle,
   Texture,
 } from "pixi.js";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export type AnimationState =
   | "walk_down"
@@ -21,14 +21,24 @@ export type AnimationState =
 type Props = {
   x: number;
   y: number;
+  speaking: boolean;
   username: string;
   animation: AnimationState;
 };
 
-export function Character({ x, y, username, animation }: Props) {
+export function Character({ x, y, username, animation, speaking }: Props) {
   const [animations, setAnimations] = useState<{
     [key: string]: Texture[];
   } | null>(null);
+
+  const { color: usernameOutlineColor, thickness: usernameOutlineThickness } =
+    useMemo(() => {
+      if (speaking) {
+        return { color: 0x00ff00, thickness: 6 };
+      } else {
+        return { color: 0x000000, thickness: 4 };
+      }
+    }, [speaking]);
 
   useEffect(() => {
     const atlasData = {
@@ -99,7 +109,13 @@ export function Character({ x, y, username, animation }: Props) {
         x={0}
         y={-60}
         text={username}
-        style={new TextStyle({ fill: "0xffffff" })}
+        style={
+          new TextStyle({
+            fill: "0xffffff",
+            stroke: usernameOutlineColor,
+            strokeThickness: usernameOutlineThickness,
+          })
+        }
       />
       {/* Must render a new AnimatedSprite when changing animations, possibly a PIXI limitation/bug */}
       {animations &&

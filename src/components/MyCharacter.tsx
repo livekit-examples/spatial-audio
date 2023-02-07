@@ -7,10 +7,11 @@ const MAX_SPEED = 1;
 
 type Props = {
   username: string;
+  speaking: boolean;
   netcode: NetcodeData;
 };
 
-export function MyCharacter({ netcode, username }: Props) {
+export function MyCharacter({ netcode, username, speaking }: Props) {
   const [position, setPosition] = useState<{ x: number; y: number } | null>(
     null
   );
@@ -118,6 +119,7 @@ export function MyCharacter({ netcode, username }: Props) {
 
   return (
     <Character
+      speaking={speaking}
       x={position.x}
       y={position.y}
       username={username}

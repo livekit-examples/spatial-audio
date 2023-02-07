@@ -1,5 +1,9 @@
 import { useNetcode } from "@/controller/netcode";
-import { useLocalParticipant } from "@livekit/components-react";
+import {
+  useIsSpeaking,
+  useLocalParticipant,
+  useSpeakingParticipants,
+} from "@livekit/components-react";
 import { Container, Stage } from "@pixi/react";
 import { useMemo } from "react";
 import useResizeObserver from "use-resize-observer";
@@ -10,6 +14,16 @@ export function GameView() {
   const { ref, width = 1, height = 1 } = useResizeObserver<HTMLDivElement>();
   const { localParticipant } = useLocalParticipant();
   const netcodeData = useNetcode();
+  const localSpeaking = useIsSpeaking(localParticipant);
+  const speakingParticipants = useSpeakingParticipants();
+
+  const speakingLookup = useMemo(() => {
+    const lookup = new Set<string>();
+    for (const p of speakingParticipants) {
+      lookup.add(p.identity);
+    }
+    return lookup;
+  }, [speakingParticipants]);
 
   return (
     <div ref={ref} className="relative h-full w-full bg-red-400">
@@ -26,12 +40,14 @@ export function GameView() {
           {/* We need to pass in the position data here because react will not keep contexts
         across different renderers. See: https://github.com/facebook/react/issues/14101 */}
           <MyCharacter
+            speaking={localSpeaking}
             username={localParticipant.identity}
             netcode={netcodeData}
           />
 
           {netcodeData.remotePlayers.map((player) => (
             <Character
+              speaking={speakingLookup.has(player.identity)}
               username={player.identity}
               key={player.identity}
               x={player.position.x}
