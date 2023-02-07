@@ -10,6 +10,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { useInterval } from "react-use";
 import { useNetcode } from "../netcode";
 import { useWebAudio } from "./webAudio";
 
@@ -39,6 +40,36 @@ function RemoteParticipantPlaybackAudio({
 
   const src = useRef<MediaStreamAudioSourceNode | null>(null);
   const panner = useRef<PannerNode | null>(null);
+  const relativePosition = useRef<{ x: number; y: number }>({
+    x: 1000,
+    y: 1000,
+  }); // set as far away initially
+
+  // calculate relative position when position changes
+  useEffect(() => {
+    relativePosition.current = {
+      x: position.x - myPosition.x,
+      y: position.y - myPosition.y,
+    };
+  }, [myPosition.x, myPosition.y, position.x, position.y]);
+
+  // update panner node position every 100ms
+  useInterval(() => {
+    if (!panner.current) {
+      return;
+    }
+
+    panner.current.positionX.setTargetAtTime(
+      relativePosition.current.x,
+      0,
+      0.05
+    );
+    panner.current.positionZ.setTargetAtTime(
+      relativePosition.current.y,
+      0,
+      0.05
+    );
+  }, 100);
 
   const cleanupNodes = useCallback(() => {
     if (src.current) {
@@ -92,20 +123,6 @@ function RemoteParticipantPlaybackAudio({
     };
   }, [cleanupNodes, connectNodes]);
 
-  // update position
-  useEffect(() => {
-    if (!panner.current) {
-      return;
-    }
-    const relativePosition = {
-      x: position.x - myPosition.x,
-      y: position.y - myPosition.y,
-    };
-
-    panner.current.positionX.setValueAtTime(relativePosition.x, 0);
-    panner.current.positionZ.setValueAtTime(relativePosition.y, 0);
-  }, [myPosition.x, myPosition.y, position.x, position.y]);
-
   useEffect(() => {
     publication.setSubscribed(true);
 
@@ -145,7 +162,6 @@ function RemoteParticipantPlayback({
     null
   );
 
-  // TODO: make this distance based
   const hearable = useMemo(
     () => distance <= maxHearableDistance,
     [distance, maxHearableDistance]
