@@ -96,7 +96,7 @@ export function Character({ x, y, username, animation, speaking }: Props) {
     // See: https://github.com/pixijs/pixi-react/issues/350
     <Container position={[x, y]} zIndex={y}>
       <Text
-        anchor={[0.5, 0.5]}
+        anchor={[0.5, 1]}
         x={0}
         y={-60}
         text={username}
@@ -123,7 +123,7 @@ export function Character({ x, y, username, animation, speaking }: Props) {
           (a) =>
             a === animation && (
               <AnimatedSprite
-                anchor={[0.5, 0.5]}
+                anchor={[0.5, 0.65]}
                 isPlaying={true}
                 animationSpeed={0.1}
                 textures={animations[a]}

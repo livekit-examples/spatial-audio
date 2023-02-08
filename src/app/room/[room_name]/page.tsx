@@ -1,7 +1,7 @@
 "use client";
 
-import { MicrophoneProvider } from "@/controller/audio/microphone";
-import { WebAudioProvider } from "@/controller/audio/webAudio";
+import { MicrophoneProvider } from "@/hooks/audio/microphone";
+import { WebAudioProvider } from "@/hooks/audio/webAudio";
 import { BottomBar } from "@/components/BottomBar";
 import { GameView } from "@/components/GameView";
 import { ParticipantList } from "@/components/ParticipantList";

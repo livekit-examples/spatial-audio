@@ -4,13 +4,6 @@ import { Inputs } from "./Inputs";
 import { Player } from "./Player";
 import { Vector2 } from "./Vector2";
 
-export type GameState = {
-  inputs: Inputs;
-  myPlayer: Player;
-  remotePlayers: Player[];
-  networkPositions: Map<string, Vector2>;
-};
-
 export const useGameState = () => {
   const [inputs, setInputs] = useState<Inputs>({ direction: { x: 0, y: 0 } });
   const [myPlayer, setMyPlayer] = useState<Player | null>(null);
@@ -21,6 +14,7 @@ export const useGameState = () => {
   const [networkAnimations, setNetworkAnimations] = useState<
     Map<string, AnimationState>
   >(new Map());
+  const [cameraOffset, setCameraOffset] = useState<Vector2>({ x: 0, y: 0 });
 
   return {
     inputs,
@@ -28,11 +22,14 @@ export const useGameState = () => {
     remotePlayers,
     networkPositions,
     networkAnimations,
+    worldBoundaries: { minX: 10, maxX: 500, minY: 10, maxY: 500 },
+    cameraOffset,
 
     setMyPlayer,
     setInputs,
     setRemotePlayers,
     setNetworkPositions,
     setNetworkAnimations,
+    setCameraOffset,
   };
 };

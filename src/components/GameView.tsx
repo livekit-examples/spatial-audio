@@ -14,9 +14,11 @@ import { useGameState } from "@/model/GameState";
 import { MyCharacterController } from "@/controller/MyCharacterController";
 import { MyPlayerSpawnController } from "@/controller/MyPlayerSpawnController";
 import { ConnectionState } from "livekit-client";
-import { SpatialAudioController } from "@/controller/audio/SpatialAudioController";
+import { SpatialAudioController } from "@/controller/SpatialAudioController";
 import { RemotePlayersController } from "@/controller/RemotePlayersController";
 import { WorldBoundaryController } from "@/controller/WorldBoundaryController";
+import { World } from "./World";
+import { Camera } from "./Camera";
 
 const MAX_HEARABLE_DISTANCE = 300;
 
@@ -32,6 +34,7 @@ export function GameView() {
     myPlayer,
     networkAnimations,
     networkPositions,
+    worldBoundaries,
     setMyPlayer,
     setInputs,
     setNetworkAnimations,
@@ -46,6 +49,10 @@ export function GameView() {
     }
     return lookup;
   }, [speakingParticipants]);
+
+  useEffect(() => {
+    console.log("NEIL speaking", localSpeaking);
+  }, [localSpeaking]);
 
   if (connectionState !== ConnectionState.Connected) {
     return null;
@@ -73,6 +80,11 @@ export function GameView() {
         setRemotePlayers={setRemotePlayers}
       />
       <InputController setInputs={setInputs} />
+      <MyPlayerSpawnController
+        myPlayer={myPlayer}
+        setMyPlayer={setMyPlayer}
+        localParticipant={localParticipant}
+      />
       <Stage
         className="absolute top-0 left-0 bottom-0 right-0"
         raf={true}
@@ -81,41 +93,39 @@ export function GameView() {
         height={height}
         options={{ resolution: 2 }}
       >
-        {/* @ts-ignore */}
-        <Container anchor={[0.5, 0.5]} sortableChildren={true}>
-          <MyPlayerSpawnController
-            myPlayer={myPlayer}
-            setMyPlayer={setMyPlayer}
-            localParticipant={localParticipant}
-          />
-          <MyCharacterController inputs={inputs} setMyPlayer={setMyPlayer} />
-          {myPlayer && (
-            <WorldBoundaryController
-              myPlayer={myPlayer}
-              setMyPlayer={setMyPlayer}
-            />
-          )}
-          {myPlayer && (
-            <Character
-              speaking={myPlayer.speaking}
-              username={myPlayer.username}
-              x={myPlayer.position.x}
-              y={myPlayer.position.y}
-              animation={myPlayer.animation}
-            />
-          )}
-
-          {remotePlayers.map((player) => (
-            <Character
-              speaking={speakingLookup.has(player.username)}
-              username={player.username}
-              key={player.username}
-              x={player.position.x}
-              y={player.position.y}
-              animation={player.animation}
-            />
-          ))}
-        </Container>
+        <Camera targetPosition={myPlayer?.position || { x: 0, y: 0 }}>
+          {/* @ts-ignore */}
+          <Container anchor={[0.5, 0.5]} sortableChildren={true}>
+            <MyCharacterController inputs={inputs} setMyPlayer={setMyPlayer} />
+            {myPlayer && (
+              <WorldBoundaryController
+                worldBoundaries={worldBoundaries}
+                myPlayer={myPlayer}
+                setMyPlayer={setMyPlayer}
+              />
+            )}
+            {myPlayer && (
+              <Character
+                speaking={localSpeaking}
+                username={myPlayer.username}
+                x={myPlayer.position.x}
+                y={myPlayer.position.y}
+                animation={myPlayer.animation}
+              />
+            )}
+            <World worldBoundaries={worldBoundaries} />
+            {remotePlayers.map((player) => (
+              <Character
+                speaking={speakingLookup.has(player.username)}
+                username={player.username}
+                key={player.username}
+                x={player.position.x}
+                y={player.position.y}
+                animation={player.animation}
+              />
+            ))}
+          </Container>
+        </Camera>
       </Stage>
     </div>
   );

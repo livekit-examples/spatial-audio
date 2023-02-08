@@ -1,59 +1,59 @@
 import { Player } from "@/model/Player";
 import { Dispatch, SetStateAction, useEffect } from "react";
 
-const minXBoundary = -1000;
-const maxXBoundary = 1000;
-const minYBoundary = -1000;
-const maxYBoundary = 1000;
-
 type Props = {
+  worldBoundaries: { minX: number; maxX: number; minY: number; maxY: number };
   myPlayer: Player;
   setMyPlayer: Dispatch<SetStateAction<Player | null>>;
 };
 
-export const WorldBoundaryController = ({ myPlayer, setMyPlayer }: Props) => {
+export const WorldBoundaryController = ({
+  worldBoundaries: { minX, maxX, minY, maxY },
+  myPlayer,
+  setMyPlayer,
+}: Props) => {
   useEffect(() => {
-    if (myPlayer.position.x < minXBoundary) {
+    if (myPlayer.position.x < minX) {
       setMyPlayer(
         (prev) =>
           prev && {
             ...prev,
-            position: { x: minXBoundary, y: prev.position.y },
+            position: { x: minX, y: prev.position.y },
           }
       );
-      myPlayer.position.x = minXBoundary;
+      myPlayer.position.x = minX;
     }
-    if (myPlayer.position.x > maxXBoundary) {
+    if (myPlayer.position.x > maxX) {
       setMyPlayer(
         (prev) =>
           prev && {
             ...prev,
-            position: { x: maxXBoundary, y: prev.position.y },
+            position: { x: maxX, y: prev.position.y },
           }
       );
-      myPlayer.position.x = maxXBoundary;
+      myPlayer.position.x = maxX;
     }
-    if (myPlayer.position.y < minYBoundary) {
+    if (myPlayer.position.y < minY) {
       setMyPlayer(
         (prev) =>
           prev && {
             ...prev,
-            position: { x: prev.position.x, y: minYBoundary },
+            position: { x: prev.position.x, y: minY },
           }
       );
-      myPlayer.position.y = minYBoundary;
+      myPlayer.position.y = minY;
     }
-    if (myPlayer.position.y > maxYBoundary) {
+    if (myPlayer.position.y > maxY) {
       setMyPlayer(
         (prev) =>
           prev && {
             ...prev,
-            position: { x: prev.position.x, y: maxYBoundary },
+            position: { x: prev.position.x, y: maxY },
           }
       );
-      myPlayer.position.y = maxYBoundary;
+      myPlayer.position.y = maxY;
     }
-  }, [myPlayer, setMyPlayer]);
+  }, [maxX, maxY, minX, minY, myPlayer, setMyPlayer]);
 
   return null;
 };

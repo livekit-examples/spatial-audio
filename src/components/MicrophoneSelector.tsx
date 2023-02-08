@@ -1,4 +1,4 @@
-import { useMicrophone } from "@/controller/audio/microphone";
+import { useMicrophone } from "@/hooks/audio/microphone";
 import { useEffect } from "react";
 
 export function MicrophoneSelector() {

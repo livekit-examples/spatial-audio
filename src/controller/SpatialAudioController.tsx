@@ -12,7 +12,7 @@ import React, {
   useState,
 } from "react";
 import { useInterval } from "react-use";
-import { useWebAudio } from "./webAudio";
+import { useWebAudio } from "../hooks/audio/webAudio";
 
 type RemoteParticipantPlaybackSubscriptionProps = {
   publication: RemoteTrackPublication;

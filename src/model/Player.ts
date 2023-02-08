@@ -5,5 +5,4 @@ export type Player = {
   username: string;
   position: Vector2;
   animation: AnimationState;
-  speaking: boolean;
 };
