@@ -8,7 +8,6 @@ type Props = {
 
 export const Camera = ({ children, targetPosition }: Props) => {
   const app = useApp();
-  console.log("NEIL app", app.screen.width, app.screen.height);
 
   return (
     //@ts-ignore
