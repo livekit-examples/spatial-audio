@@ -1,3 +1,4 @@
+import { AnimationState } from "@/model/AnimationState";
 import { AnimatedSprite, Container, Text } from "@pixi/react";
 import {
   BaseTexture,
@@ -7,16 +8,6 @@ import {
   Texture,
 } from "pixi.js";
 import { useEffect, useMemo, useState } from "react";
-
-export type AnimationState =
-  | "walk_down"
-  | "walk_up"
-  | "walk_right"
-  | "walk_left"
-  | "idle_down"
-  | "idle_up"
-  | "idle_right"
-  | "idle_left";
 
 type Props = {
   x: number;

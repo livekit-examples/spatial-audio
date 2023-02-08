@@ -1,5 +1,6 @@
 "use-client";
 
+import { Player } from "@/model/Player";
 import { useRemoteParticipants, useTrack } from "@livekit/components-react";
 import { RemoteParticipant, RemoteTrackPublication } from "livekit-client";
 import React, {
@@ -11,17 +12,7 @@ import React, {
   useState,
 } from "react";
 import { useInterval } from "react-use";
-import { useNetcode } from "../netcode";
 import { useWebAudio } from "./webAudio";
-
-type Data = {};
-
-const defaultValue: Data = {};
-
-const PlaybackContext = React.createContext({
-  _provider: false,
-  data: defaultValue,
-});
 
 type RemoteParticipantPlaybackSubscriptionProps = {
   publication: RemoteTrackPublication;
@@ -202,15 +193,16 @@ function RemoteParticipantPlayback({
 
 type PlaybackProviderProps = {
   maxHearableDistance: number;
-  children: React.ReactNode;
+  remotePlayers: Player[];
+  myPlayer: Player;
 };
 
-export function PlaybackProvider({
-  children,
+export function SpatialAudioController({
   maxHearableDistance,
+  remotePlayers,
+  myPlayer,
 }: PlaybackProviderProps) {
   const remoteParticipants = useRemoteParticipants({});
-  const { remotePlayers, myPosition } = useNetcode();
 
   const remoteParticipantLookup = useMemo(() => {
     const lookup = new Map<string, RemoteParticipant>();
@@ -221,35 +213,20 @@ export function PlaybackProvider({
   }, [remoteParticipants]);
 
   return (
-    <PlaybackContext.Provider
-      value={{
-        _provider: true,
-        data: {},
-      }}
-    >
+    <>
       {remotePlayers.map((player) => {
-        const rp = remoteParticipantLookup.get(player.identity);
-        if (!rp || !myPosition) return null;
+        const rp = remoteParticipantLookup.get(player.username);
+        if (!rp) return null;
         return (
           <RemoteParticipantPlayback
             maxHearableDistance={maxHearableDistance}
-            key={player.identity}
+            key={player.username}
             participant={rp as RemoteParticipant}
             position={player.position}
-            myPosition={myPosition}
+            myPosition={myPlayer.position}
           />
         );
       })}
-      {children}
-    </PlaybackContext.Provider>
+    </>
   );
-}
-
-export function usePlayback() {
-  const ctx = useContext(PlaybackContext);
-  if (!ctx._provider) {
-    throw "usePlayback must be used within a PlaybackProvider";
-  }
-
-  return ctx.data;
 }

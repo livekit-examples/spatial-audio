@@ -1,7 +1,6 @@
 "use client";
 
 import { MicrophoneProvider } from "@/controller/audio/microphone";
-import { PlaybackProvider } from "@/controller/audio/playback";
 import { WebAudioProvider } from "@/controller/audio/webAudio";
 import { BottomBar } from "@/components/BottomBar";
 import { GameView } from "@/components/GameView";
@@ -14,10 +13,7 @@ import {
 } from "@/pages/api/connection_details";
 import { LiveKitRoom } from "@livekit/components-react";
 import { useCallback, useMemo, useState } from "react";
-import { NetcodeProvider } from "@/controller/netcode";
 import { toast, Toaster } from "react-hot-toast";
-
-const MAX_HEARABLE_DISTANCE = 300;
 
 type Props = {
   params: { room_name: string };
@@ -84,27 +80,23 @@ export default function Page({ params: { room_name } }: Props) {
         connectOptions={{ autoSubscribe: false }}
       >
         <WebAudioProvider>
-          <NetcodeProvider>
-            <PlaybackProvider maxHearableDistance={MAX_HEARABLE_DISTANCE}>
-              <MicrophoneProvider>
-                <div className="flex h-screen w-screen">
-                  <div className="flex flex-col w-full h-full">
-                    <div className="grow flex">
-                      <div className="grow">
-                        <GameView />
-                      </div>
-                      <div className="w-1/5">
-                        <ParticipantList />
-                      </div>
-                    </div>
-                    <div className="bg-neutral">
-                      <BottomBar />
-                    </div>
+          <MicrophoneProvider>
+            <div className="flex h-screen w-screen">
+              <div className="flex flex-col w-full h-full">
+                <div className="grow flex">
+                  <div className="grow">
+                    <GameView />
+                  </div>
+                  <div className="w-1/5">
+                    <ParticipantList />
                   </div>
                 </div>
-              </MicrophoneProvider>
-            </PlaybackProvider>
-          </NetcodeProvider>
+                <div className="bg-neutral">
+                  <BottomBar />
+                </div>
+              </div>
+            </div>
+          </MicrophoneProvider>
         </WebAudioProvider>
       </LiveKitRoom>
     </div>
