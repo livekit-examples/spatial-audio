@@ -6,7 +6,7 @@ import {
   useSpeakingParticipants,
 } from "@livekit/components-react";
 import { Container, Stage } from "@pixi/react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import useResizeObserver from "use-resize-observer";
 import { Character } from "./Character";
 import { InputController } from "@/controller/InputController";
@@ -19,8 +19,7 @@ import { RemotePlayersController } from "@/controller/RemotePlayersController";
 import { WorldBoundaryController } from "@/controller/WorldBoundaryController";
 import { World } from "./World";
 import { Camera } from "./Camera";
-
-const MAX_HEARABLE_DISTANCE = 300;
+import { EarshotRadius } from "./EarshotRadius";
 
 export function GameView() {
   const { ref, width = 1, height = 1 } = useResizeObserver<HTMLDivElement>();
@@ -35,6 +34,8 @@ export function GameView() {
     networkAnimations,
     networkPositions,
     worldBoundaries,
+    earshotRadius,
+    backgroundZIndex,
     setMyPlayer,
     setInputs,
     setNetworkAnimations,
@@ -50,10 +51,6 @@ export function GameView() {
     return lookup;
   }, [speakingParticipants]);
 
-  useEffect(() => {
-    console.log("NEIL speaking", localSpeaking);
-  }, [localSpeaking]);
-
   if (connectionState !== ConnectionState.Connected) {
     return null;
   }
@@ -64,7 +61,7 @@ export function GameView() {
         <SpatialAudioController
           myPlayer={myPlayer}
           remotePlayers={remotePlayers}
-          maxHearableDistance={MAX_HEARABLE_DISTANCE}
+          maxHearableDistance={earshotRadius}
         />
       )}
       {myPlayer && (
@@ -113,7 +110,10 @@ export function GameView() {
                 animation={myPlayer.animation}
               />
             )}
-            <World worldBoundaries={worldBoundaries} />
+            <World
+              backgroundZIndex={backgroundZIndex}
+              worldBoundaries={worldBoundaries}
+            />
             {remotePlayers.map((player) => (
               <Character
                 speaking={speakingLookup.has(player.username)}
@@ -124,6 +124,12 @@ export function GameView() {
                 animation={player.animation}
               />
             ))}
+            <EarshotRadius
+              backgroundZIndex={backgroundZIndex}
+              render={true}
+              earshotRadius={earshotRadius}
+              myPlayerPosition={myPlayer?.position || { x: 0, y: 0 }}
+            />
           </Container>
         </Camera>
       </Stage>

@@ -1,12 +1,6 @@
 import { AnimationState } from "@/model/AnimationState";
 import { AnimatedSprite, Container, Text } from "@pixi/react";
-import {
-  BaseTexture,
-  Graphics as G,
-  Spritesheet,
-  TextStyle,
-  Texture,
-} from "pixi.js";
+import { BaseTexture, Spritesheet, TextStyle, Texture } from "pixi.js";
 import { useEffect, useMemo, useState } from "react";
 
 type Props = {
@@ -94,7 +88,7 @@ export function Character({ x, y, username, animation, speaking }: Props) {
     // @ts-ignore
     // pixi-react types don't support React 18 yet
     // See: https://github.com/pixijs/pixi-react/issues/350
-    <Container position={[x, y]} zIndex={y}>
+    <Container position={[x, y]} zIndex={y} sortableChildren={true}>
       <Text
         anchor={[0.5, 1]}
         x={0}

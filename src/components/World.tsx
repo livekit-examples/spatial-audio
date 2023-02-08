@@ -5,20 +5,21 @@ import { Graphics as GraphicsComponent } from "@pixi/react";
 
 type Props = {
   worldBoundaries: WorldBoundaries;
+  backgroundZIndex: number;
 };
 
-export const World = ({ worldBoundaries }: Props) => {
+export const World = ({ worldBoundaries, backgroundZIndex }: Props) => {
   const draw = useCallback(
     (g: Graphics) => {
       g.clear();
       g.beginFill(0xffffff);
-      g.lineStyle(4, 0x888888, 1);
+      g.lineStyle(1, 0x888888, 1);
       g.drawRoundedRect(
         worldBoundaries.minX,
         worldBoundaries.minY,
         worldBoundaries.maxX - worldBoundaries.minX,
         worldBoundaries.maxY - worldBoundaries.minY,
-        10
+        2
       );
       g.endFill();
 
@@ -47,5 +48,5 @@ export const World = ({ worldBoundaries }: Props) => {
     ]
   );
 
-  return <GraphicsComponent draw={draw} />;
+  return <GraphicsComponent zIndex={backgroundZIndex} draw={draw} />;
 };
