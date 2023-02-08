@@ -21,6 +21,23 @@ export const World = ({ worldBoundaries }: Props) => {
         10
       );
       g.endFill();
+
+      g.lineStyle(0, 0x000000, 0);
+      g.beginFill(0x888888);
+      for (
+        let x = worldBoundaries.minX + 20;
+        x < worldBoundaries.maxX;
+        x += 20
+      ) {
+        for (
+          let y = worldBoundaries.minY + 20;
+          y < worldBoundaries.maxY;
+          y += 20
+        ) {
+          g.drawCircle(x, y, 2);
+        }
+      }
+      g.endFill();
     },
     [
       worldBoundaries.maxX,

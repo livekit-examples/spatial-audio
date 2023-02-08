@@ -196,7 +196,6 @@ export function MicrophoneProvider({ children }: Props) {
       {isSineWaveSelected && !_muted && (
         <SineWaveMicrophone
           onStream={(ms) => {
-            console.log("NEIL on stream", ms);
             if (webAudioMediaStream.current === ms) return;
             webAudioMediaStream.current = ms;
             setMuted(_muted);

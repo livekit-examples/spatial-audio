@@ -15,16 +15,10 @@ export function MyPlayerSpawnController({
 }: Props) {
   useEffect(() => {
     if (myPlayer === null && localParticipant?.identity) {
-      console.log(
-        "NEIL setting my player",
-        localParticipant.identity,
-        localParticipant
-      );
       setMyPlayer({
         username: localParticipant.identity,
         position: { x: 0, y: 0 },
         animation: "idle_down",
-        speaking: false,
       });
     }
   }, [localParticipant, myPlayer, setMyPlayer]);
