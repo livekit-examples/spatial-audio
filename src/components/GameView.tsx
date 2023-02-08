@@ -16,6 +16,7 @@ import { MyPlayerSpawnController } from "@/controller/MyPlayerSpawnController";
 import { ConnectionState } from "livekit-client";
 import { SpatialAudioController } from "@/controller/audio/SpatialAudioController";
 import { RemotePlayersController } from "@/controller/RemotePlayersController";
+import { WorldBoundaryController } from "@/controller/WorldBoundaryController";
 
 const MAX_HEARABLE_DISTANCE = 300;
 
@@ -88,6 +89,12 @@ export function GameView() {
             localParticipant={localParticipant}
           />
           <MyCharacterController inputs={inputs} setMyPlayer={setMyPlayer} />
+          {myPlayer && (
+            <WorldBoundaryController
+              myPlayer={myPlayer}
+              setMyPlayer={setMyPlayer}
+            />
+          )}
           {myPlayer && (
             <Character
               speaking={myPlayer.speaking}

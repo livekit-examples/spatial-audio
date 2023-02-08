@@ -49,8 +49,6 @@ export function RemotePlayersController({
           animation: networkAnimations.get(identity)!,
         }));
 
-      return newRemotePlayers;
-
       // Crude interpolation that tries to match the 0.5 second send interval
       // for (const identity of targetKeys) {
       //   const currentPosition =
@@ -67,6 +65,8 @@ export function RemotePlayersController({
       //   };
       //   _interpolatedPositions.current.set(identity, newPosition);
       // }
+
+      return newRemotePlayers;
     });
   }, [
     networkAnimations,
