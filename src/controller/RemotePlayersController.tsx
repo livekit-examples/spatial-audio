@@ -4,11 +4,8 @@ import { AnimationState } from "@/model/AnimationState";
 import { Player } from "@/model/Player";
 import { Vector2 } from "@/model/Vector2";
 import { useRemoteParticipants } from "@livekit/components-react";
-import React, { Dispatch, SetStateAction, useCallback, useRef } from "react";
+import { Dispatch, SetStateAction, useCallback, useRef } from "react";
 import { useInterval } from "react-use";
-import { isPropertyAccessOrQualifiedName } from "typescript";
-
-const TICK_FPS = 30;
 
 type Props = {
   networkPositions: Map<string, Vector2>;

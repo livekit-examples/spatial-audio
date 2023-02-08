@@ -5,7 +5,6 @@ import { useRemoteParticipants, useTrack } from "@livekit/components-react";
 import { RemoteParticipant, RemoteTrackPublication } from "livekit-client";
 import React, {
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,

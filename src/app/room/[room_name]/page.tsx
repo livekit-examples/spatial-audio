@@ -87,9 +87,6 @@ export default function Page({ params: { room_name } }: Props) {
                   <div className="grow">
                     <GameView />
                   </div>
-                  <div className="w-1/5">
-                    <ParticipantList />
-                  </div>
                 </div>
                 <div className="bg-neutral">
                   <BottomBar />
