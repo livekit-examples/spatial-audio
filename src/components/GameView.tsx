@@ -1,4 +1,4 @@
-import { NetcodeController, useNetcode } from "@/controller/NetcodeController";
+import { NetcodeController } from "@/controller/NetcodeController";
 import {
   useConnectionState,
   useIsSpeaking,
