@@ -52,12 +52,12 @@ function RemoteParticipantPlaybackAudio({
     panner.current.positionX.setTargetAtTime(
       relativePosition.current.x,
       0,
-      0.05
+      0.02
     );
     panner.current.positionZ.setTargetAtTime(
       relativePosition.current.y,
       0,
-      0.05
+      0.02
     );
   }, 100);
 

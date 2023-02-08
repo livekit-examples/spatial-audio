@@ -119,7 +119,7 @@ export function Character({ x, y, username, animation, speaking }: Props) {
               <AnimatedSprite
                 anchor={[0.5, 0.65]}
                 isPlaying={true}
-                animationSpeed={0.1}
+                animationSpeed={0.2}
                 textures={animations[a]}
                 key={a}
               />

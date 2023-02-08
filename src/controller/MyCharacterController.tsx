@@ -3,7 +3,7 @@ import { Player } from "@/model/Player";
 import { useTick } from "@pixi/react";
 import { Dispatch, SetStateAction } from "react";
 
-const MAX_SPEED = 1;
+const MAX_SPEED = 6;
 
 type Props = {
   inputs: Inputs;
