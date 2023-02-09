@@ -14,6 +14,10 @@ import {
 import { LiveKitRoom } from "@livekit/components-react";
 import { useCallback, useMemo, useState } from "react";
 import { toast, Toaster } from "react-hot-toast";
+import {
+  CharacterName,
+  CharacterSelector,
+} from "@/components/CharacterSelector";
 
 type Props = {
   params: { room_name: string };
@@ -22,6 +26,8 @@ type Props = {
 export default function Page({ params: { room_name } }: Props) {
   const [connectionDetails, setConnectionDetails] =
     useState<ConnectionDetails | null>(null);
+  const [selectedCharacter, setSelectedCharacter] =
+    useState<CharacterName>("doux");
 
   const humanRoomName = useMemo(() => {
     return decodeURI(room_name);
@@ -53,6 +59,10 @@ export default function Page({ params: { room_name } }: Props) {
         <h2 className="text-4xl mb-4">{humanRoomName}</h2>
         <RoomInfo roomName={room_name} />
         <div className="divider"></div>
+        <CharacterSelector
+          selectedCharacter={selectedCharacter}
+          onSelectedCharacterChange={setSelectedCharacter}
+        />
         <UsernameInput
           submitText="Join Room"
           onSubmit={async (username) => {
