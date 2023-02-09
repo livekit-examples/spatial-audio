@@ -11,7 +11,7 @@ import React, {
   useState,
 } from "react";
 import { useInterval } from "react-use";
-import { useWebAudio } from "../hooks/audio/webAudio";
+import { useWebAudio } from "../providers/audio/webAudio";
 
 type RemoteParticipantPlaybackSubscriptionProps = {
   publication: RemoteTrackPublication;

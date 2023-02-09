@@ -20,6 +20,7 @@ import { WorldBoundaryController } from "@/controller/WorldBoundaryController";
 import { World } from "./World";
 import { Camera } from "./Camera";
 import { EarshotRadius } from "./EarshotRadius";
+import { AnimationsProvider } from "@/providers/animations";
 
 export function GameView() {
   const { ref, width = 1, height = 1 } = useResizeObserver<HTMLDivElement>();
@@ -94,48 +95,55 @@ export function GameView() {
         height={height}
         options={{ resolution: 2 }}
       >
-        <Camera targetPosition={myPlayer?.position || { x: 0, y: 0 }}>
-          {/* @ts-ignore */}
-          <Container anchor={[0.5, 0.5]} sortableChildren={true}>
-            <MyCharacterController inputs={inputs} setMyPlayer={setMyPlayer} />
-            {myPlayer && (
-              <WorldBoundaryController
-                worldBoundaries={worldBoundaries}
-                myPlayer={myPlayer}
+        <AnimationsProvider>
+          <Camera targetPosition={myPlayer?.position || { x: 0, y: 0 }}>
+            {/* @ts-ignore */}
+            <Container anchor={[0.5, 0.5]} sortableChildren={true}>
+              <MyCharacterController
+                inputs={inputs}
                 setMyPlayer={setMyPlayer}
               />
-            )}
-            {myPlayer && (
-              <Character
-                speaking={localSpeaking}
-                username={myPlayer.username}
-                x={myPlayer.position.x}
-                y={myPlayer.position.y}
-                animation={myPlayer.animation}
+              {myPlayer && (
+                <WorldBoundaryController
+                  worldBoundaries={worldBoundaries}
+                  myPlayer={myPlayer}
+                  setMyPlayer={setMyPlayer}
+                />
+              )}
+              {myPlayer && (
+                <Character
+                  speaking={localSpeaking}
+                  username={myPlayer.username}
+                  x={myPlayer.position.x}
+                  y={myPlayer.position.y}
+                  character={"doux"}
+                  animation={myPlayer.animation}
+                />
+              )}
+              <World
+                backgroundZIndex={backgroundZIndex}
+                worldBoundaries={worldBoundaries}
               />
-            )}
-            <World
-              backgroundZIndex={backgroundZIndex}
-              worldBoundaries={worldBoundaries}
-            />
-            {remotePlayers.map((player) => (
-              <Character
-                speaking={speakingLookup.has(player.username)}
-                username={player.username}
-                key={player.username}
-                x={player.position.x}
-                y={player.position.y}
-                animation={player.animation}
+              {remotePlayers.map((player) => (
+                <Character
+                  speaking={speakingLookup.has(player.username)}
+                  username={player.username}
+                  key={player.username}
+                  x={player.position.x}
+                  y={player.position.y}
+                  character={"doux"}
+                  animation={player.animation}
+                />
+              ))}
+              <EarshotRadius
+                backgroundZIndex={backgroundZIndex}
+                render={true}
+                earshotRadius={earshotRadius}
+                myPlayerPosition={myPlayer?.position || { x: 0, y: 0 }}
               />
-            ))}
-            <EarshotRadius
-              backgroundZIndex={backgroundZIndex}
-              render={true}
-              earshotRadius={earshotRadius}
-              myPlayerPosition={myPlayer?.position || { x: 0, y: 0 }}
-            />
-          </Container>
-        </Camera>
+            </Container>
+          </Camera>
+        </AnimationsProvider>
       </Stage>
     </div>
   );
