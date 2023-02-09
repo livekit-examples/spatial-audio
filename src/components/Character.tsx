@@ -31,6 +31,11 @@ export function Character({ x, y, username, animation, speaking }: Props) {
     [animation]
   );
 
+  const scale = useMemo(
+    () => (animation.endsWith("_right") ? 1 : -1),
+    [animation]
+  );
+
   return (
     // @ts-ignore
     // pixi-react types don't support React 18 yet
@@ -54,6 +59,7 @@ export function Character({ x, y, username, animation, speaking }: Props) {
           animationName === a && (
             <AnimatedSprite
               key={a}
+              scale={[scale, 1]}
               anchor={[0.5, 0.65]}
               isPlaying={true}
               animationSpeed={0.15}
