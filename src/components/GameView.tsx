@@ -6,7 +6,7 @@ import {
   useSpeakingParticipants,
 } from "@livekit/components-react";
 import { Container, Stage } from "@pixi/react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import useResizeObserver from "use-resize-observer";
 import { Character } from "./Character";
 import { InputController } from "@/controller/InputController";
@@ -50,6 +50,10 @@ export function GameView() {
     }
     return lookup;
   }, [speakingParticipants]);
+
+  useEffect(() => {
+    console.log("LUKAS -", localSpeaking, speakingLookup);
+  }, [localSpeaking, speakingLookup]);
 
   if (connectionState !== ConnectionState.Connected) {
     return null;
