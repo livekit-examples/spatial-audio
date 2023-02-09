@@ -24,12 +24,6 @@ type Data = {
   selectMicrophone: SelectMicrophoneFn;
 };
 
-type WebAudioMicSineWave = {
-  type: "sine";
-};
-
-type WebAudioMic = WebAudioMicSineWave;
-
 interface MicrophoneSelectionDevice {
   type: "device";
   name: string;
@@ -41,7 +35,6 @@ interface MicrophoneSelectionWebAudio {
   type: "web_audio";
   name: string;
   id: string;
-  microphone: WebAudioMic;
 }
 
 type MicrophoneSelection =
@@ -90,7 +83,11 @@ export function MicrophoneProvider({ children }: Props) {
         type: "web_audio",
         name: "Sine Wave",
         id: "sine-wave",
-        microphone: { type: "sine" } as WebAudioMicSineWave,
+      },
+      {
+        type: "web_audio",
+        name: "Audio File",
+        id: "audio-file",
       },
     ];
   }, [mediaDevices]);
@@ -129,6 +126,11 @@ export function MicrophoneProvider({ children }: Props) {
 
   const isSineWaveSelected = useMemo(
     () => selectedMicrophone?.id === "sine-wave",
+    [selectedMicrophone?.id]
+  );
+
+  const isFileSelected = useMemo(
+    () => selectedMicrophone?.id === "audio-file",
     [selectedMicrophone?.id]
   );
 
@@ -202,6 +204,15 @@ export function MicrophoneProvider({ children }: Props) {
           }}
         />
       )}
+      {isFileSelected && !_muted && (
+        <AudioFileMicrophone
+          onStream={(ms) => {
+            if (webAudioMediaStream.current === ms) return;
+            webAudioMediaStream.current = ms;
+            setMuted(_muted);
+          }}
+        />
+      )}
       {children}
     </MicrophoneContext.Provider>
   );
@@ -220,7 +231,7 @@ type SineWaveMicrophoneProps = {
   onStream: (stream: MediaStream | null) => void;
 };
 
-function SineWaveMicrophone({ onStream }: SineWaveMicrophoneProps) {
+const SineWaveMicrophone = ({ onStream }: SineWaveMicrophoneProps) => {
   const { audioContext } = useWebAudio();
   const oscillator = useRef<OscillatorNode | null>(null);
   const sink = useRef<MediaStreamAudioDestinationNode | null>(null);
@@ -257,4 +268,43 @@ function SineWaveMicrophone({ onStream }: SineWaveMicrophoneProps) {
   }, [cleanupWebAudio, createWebAudio]);
 
   return null;
-}
+};
+
+type AudioFileMicrophoneProps = {
+  onStream: (stream: MediaStream | null) => void;
+};
+
+const AudioFileMicrophone = ({ onStream }: AudioFileMicrophoneProps) => {
+  const { audioContext } = useWebAudio();
+  const audioEl = useRef<HTMLAudioElement | null>(null);
+  const source = useRef<MediaElementAudioSourceNode | null>(null);
+  const sink = useRef<MediaStreamAudioDestinationNode | null>(null);
+
+  const cleanupWebAudio = useCallback(() => {
+    if (source.current !== null) {
+      source.current.disconnect();
+      source.current = null;
+    }
+    if (sink.current !== null) {
+      sink.current.disconnect();
+      sink.current = null;
+    }
+  }, []);
+
+  const createWebAudio = useCallback(() => {
+    if (audioContext === null || audioEl.current === null) return;
+    source.current = audioContext.createMediaElementSource(audioEl.current);
+    sink.current = audioContext.createMediaStreamDestination();
+    source.current.connect(sink.current);
+    onStream(sink.current.stream);
+  }, [audioContext, onStream]);
+
+  useEffect(() => {
+    createWebAudio();
+    return () => {
+      cleanupWebAudio();
+    };
+  }, [cleanupWebAudio, createWebAudio]);
+
+  return <audio ref={audioEl} src="/sine-wave.mp3" />;
+};

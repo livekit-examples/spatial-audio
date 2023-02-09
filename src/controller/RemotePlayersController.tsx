@@ -40,7 +40,6 @@ export function RemotePlayersController({
             networkAnimations.has(identity) && networkPositions.has(identity)
         )
         .map((identity) => ({
-          speaking: previousPlayersLookup.get(identity)?.speaking || false,
           username: identity,
           position: networkPositions.get(identity)!,
           animation: networkAnimations.get(identity)!,
