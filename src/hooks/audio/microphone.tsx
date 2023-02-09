@@ -87,7 +87,7 @@ export function MicrophoneProvider({ children }: Props) {
       },
       {
         type: "web_audio",
-        name: "Audio File",
+        name: "Disco Mode",
         id: "audio-file",
       },
     ];
