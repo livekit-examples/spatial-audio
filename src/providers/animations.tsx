@@ -1,7 +1,14 @@
 "use-client";
 
 import { CharacterName } from "@/components/CharacterSelector";
-import { BaseTexture, Resource, Spritesheet, Texture } from "pixi.js";
+import { useApp } from "@pixi/react";
+import {
+  BaseTexture,
+  Resource,
+  SCALE_MODES,
+  Spritesheet,
+  Texture,
+} from "pixi.js";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 
 const atlasDataGenerator = (name: CharacterName) => {
@@ -11,7 +18,7 @@ const atlasDataGenerator = (name: CharacterName) => {
       image: `/characters/${name}.png`,
       format: "RGBA8888",
       size: { w: 576, h: 24 },
-      scale: "0.5",
+      scale: "0.32",
     },
     animations: {
       walk: ["4", "5", "6", "7", "8", "9"],
@@ -85,7 +92,13 @@ export function AnimationsProvider({ children }: Props) {
       atlasDataGenerator("vita"),
     ];
     const [doux, mort, targ, vita] = atlases.map(
-      (atlas) => new Spritesheet(BaseTexture.from(atlas.meta.image), atlas)
+      (atlas) =>
+        new Spritesheet(
+          BaseTexture.from(atlas.meta.image, {
+            scaleMode: SCALE_MODES.NEAREST,
+          }),
+          atlas
+        )
     );
 
     await doux.parse();

@@ -21,6 +21,7 @@ import { World } from "./World";
 import { Camera } from "./Camera";
 import { EarshotRadius } from "./EarshotRadius";
 import { AnimationsProvider } from "@/providers/animations";
+import { Shadows } from "./Shadows";
 
 export function GameView() {
   const { ref, width = 1, height = 1 } = useResizeObserver<HTMLDivElement>();
@@ -93,7 +94,7 @@ export function GameView() {
         renderOnComponentChange={false}
         width={width}
         height={height}
-        options={{ resolution: 2 }}
+        options={{ resolution: 2, backgroundColor: 0x509b66 }}
       >
         <AnimationsProvider>
           <Camera targetPosition={myPlayer?.position || { x: 0, y: 0 }}>
@@ -123,6 +124,11 @@ export function GameView() {
               <World
                 backgroundZIndex={backgroundZIndex}
                 worldBoundaries={worldBoundaries}
+              />
+              <Shadows
+                backgroundZIndex={backgroundZIndex}
+                myPlayer={myPlayer}
+                remotePlayers={remotePlayers}
               />
               {remotePlayers.map((player) => (
                 <Character

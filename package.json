@@ -12,6 +12,7 @@
     "@livekit/components-react": "^0.2.3",
     "@next/font": "13.1.5",
     "@pixi/react": "^7.0.0-alpha.2",
+    "@pixi/tilemap": "^3.2.2",
     "@types/node": "18.11.18",
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",

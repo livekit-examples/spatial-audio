@@ -22,7 +22,7 @@ export const useGameState = () => {
     remotePlayers,
     networkPositions,
     networkAnimations,
-    worldBoundaries: { minX: -500, maxX: 500, minY: -500, maxY: 500 },
+    worldBoundaries: { minX: -775, maxX: 780, minY: -790, maxY: 770 },
     cameraOffset,
     backgroundZIndex: -100000,
     earshotRadius: 300,

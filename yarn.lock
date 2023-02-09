@@ -382,6 +382,11 @@
     "@pixi/settings" "7.1.1"
     "@pixi/utils" "7.1.1"
 
+"@pixi/tilemap@^3.2.2":
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/@pixi/tilemap/-/tilemap-3.2.2.tgz#8327e5d7007a90be640a0b1eb9943a1e405b57e4"
+  integrity sha512-svdmMyJP63vdae3t66tCmE8IWeO/6lD1xXU+5gzfxqxJS5seTp2bm8mQok2c8PF0O6l/NYlLz6BRklOuEuHboQ==
+
 "@pixi/utils@7.1.1":
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/@pixi/utils/-/utils-7.1.1.tgz#8343557e569af91d0522ee8e96ab7b825d24e1cc"
