@@ -11,6 +11,7 @@ import React, {
   useMemo,
   useRef,
 } from "react";
+import { useUnmount } from "react-use";
 import { useWebAudio } from "./webAudio";
 
 type SelectMicrophoneFn = (index: number) => void;
@@ -292,7 +293,12 @@ const AudioFileMicrophone = ({ onStream }: AudioFileMicrophoneProps) => {
   }, []);
 
   const createWebAudio = useCallback(() => {
-    if (audioContext === null || audioEl.current === null) return;
+    if (
+      audioContext === null ||
+      audioEl.current === null ||
+      source.current !== null
+    )
+      return;
     source.current = audioContext.createMediaElementSource(audioEl.current);
     sink.current = audioContext.createMediaStreamDestination();
     source.current.connect(sink.current);
@@ -301,10 +307,17 @@ const AudioFileMicrophone = ({ onStream }: AudioFileMicrophoneProps) => {
 
   useEffect(() => {
     createWebAudio();
-    return () => {
-      cleanupWebAudio();
-    };
-  }, [cleanupWebAudio, createWebAudio]);
+  }, [createWebAudio]);
 
-  return <audio ref={audioEl} src="/sine-wave.mp3" />;
+  useUnmount(cleanupWebAudio);
+
+  return (
+    <audio
+      muted={false}
+      autoPlay={true}
+      ref={audioEl}
+      src="/disco.mp3"
+      loop={true}
+    />
+  );
 };
