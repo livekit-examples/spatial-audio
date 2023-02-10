@@ -1,9 +1,11 @@
+import { CharacterName } from "@/components/CharacterSelector";
 import { Player } from "@/model/Player";
 import { Participant } from "livekit-client";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 type Props = {
   localParticipant: Participant | null;
+  localCharacter: CharacterName | null;
   myPlayer: Player | null;
   setMyPlayer: Dispatch<SetStateAction<Player | null>>;
 };
@@ -12,15 +14,17 @@ export function MyPlayerSpawnController({
   setMyPlayer,
   myPlayer,
   localParticipant,
+  localCharacter,
 }: Props) {
   useEffect(() => {
-    if (myPlayer === null && localParticipant?.identity) {
+    if (myPlayer === null && localParticipant?.identity && localCharacter) {
       setMyPlayer({
         username: localParticipant.identity,
         position: { x: 0, y: 0 },
-        animation: "idle_down",
+        animation: "idle_left",
+        character: localCharacter,
       });
     }
-  }, [localParticipant, myPlayer, setMyPlayer]);
+  }, [localCharacter, localParticipant, myPlayer, setMyPlayer]);
   return null;
 }

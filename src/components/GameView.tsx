@@ -3,6 +3,7 @@ import {
   useConnectionState,
   useIsSpeaking,
   useLocalParticipant,
+  useParticipantInfo,
   useSpeakingParticipants,
 } from "@livekit/components-react";
 import { Container, Stage } from "@pixi/react";
@@ -22,11 +23,16 @@ import { Camera } from "./Camera";
 import { EarshotRadius } from "./EarshotRadius";
 import { AnimationsProvider } from "@/providers/animations";
 import { Shadows } from "./Shadows";
+import { CharacterEncoding } from "crypto";
+import { CharacterName } from "./CharacterSelector";
 
 export function GameView() {
   const { ref, width = 1, height = 1 } = useResizeObserver<HTMLDivElement>();
   const connectionState = useConnectionState();
   const { localParticipant } = useLocalParticipant();
+  const { metadata: localMetadata } = useParticipantInfo({
+    participant: localParticipant,
+  });
   const localSpeaking = useIsSpeaking(localParticipant);
   const speakingParticipants = useSpeakingParticipants();
   const {
@@ -54,8 +60,15 @@ export function GameView() {
   }, [speakingParticipants]);
 
   useEffect(() => {
-    console.log("LUKAS -", localSpeaking, speakingLookup);
-  }, [localSpeaking, speakingLookup]);
+    if (localParticipant) {
+      setMyPlayer((prev) => prev && { ...prev, character: "targ" });
+    }
+  }, [localParticipant, setMyPlayer]);
+
+  const localCharacter = useMemo(
+    () => JSON.parse(localMetadata || "{}").character || null,
+    [localMetadata]
+  );
 
   if (connectionState !== ConnectionState.Connected) {
     return null;
@@ -84,6 +97,7 @@ export function GameView() {
       />
       <InputController setInputs={setInputs} />
       <MyPlayerSpawnController
+        localCharacter={localCharacter}
         myPlayer={myPlayer}
         setMyPlayer={setMyPlayer}
         localParticipant={localParticipant}
@@ -117,7 +131,7 @@ export function GameView() {
                   username={myPlayer.username}
                   x={myPlayer.position.x}
                   y={myPlayer.position.y}
-                  character={"doux"}
+                  character={myPlayer.character}
                   animation={myPlayer.animation}
                 />
               )}
@@ -137,7 +151,7 @@ export function GameView() {
                   key={player.username}
                   x={player.position.x}
                   y={player.position.y}
-                  character={"doux"}
+                  character={player.character}
                   animation={player.animation}
                 />
               ))}

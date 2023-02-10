@@ -35,7 +35,11 @@ export default function Page({ params: { room_name } }: Props) {
 
   const requestConnectionDetails = useCallback(
     async (username: string) => {
-      const body: ConnectionDetailsBody = { room_name, username };
+      const body: ConnectionDetailsBody = {
+        room_name,
+        username,
+        character: selectedCharacter,
+      };
       const response = await fetch("/api/connection_details", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -48,7 +52,7 @@ export default function Page({ params: { room_name } }: Props) {
       const { error } = await response.json();
       throw error;
     },
-    [room_name]
+    [room_name, selectedCharacter]
   );
 
   // If we don't have any connection details yet, show the username form

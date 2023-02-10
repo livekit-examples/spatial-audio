@@ -1,10 +1,12 @@
 "use-client";
 
+import { CharacterName } from "@/components/CharacterSelector";
 import { AnimationState } from "@/model/AnimationState";
 import { Player } from "@/model/Player";
 import { Vector2 } from "@/model/Vector2";
 import { useRemoteParticipants } from "@livekit/components-react";
-import { Dispatch, SetStateAction, useCallback, useRef } from "react";
+import { Participant } from "livekit-client";
+import { Dispatch, SetStateAction, useCallback, useMemo, useRef } from "react";
 import { useInterval } from "react-use";
 
 type Props = {
@@ -22,6 +24,16 @@ export function RemotePlayersController({
   const _interpolatedPositions = useRef<Map<string, { x: number; y: number }>>(
     new Map()
   );
+
+  const remoteCharacterLookup = useMemo(() => {
+    const lookup = new Map<string, CharacterName>();
+    for (const rp of remoteParticipants) {
+      const metadata = JSON.parse(rp.metadata || "{}");
+      lookup.set(rp.identity, metadata.character || ("doux" as CharacterName));
+    }
+    console.log("NEIL lookup", lookup);
+    return lookup;
+  }, [remoteParticipants]);
 
   const interpolatePositions = useCallback(() => {
     setRemotePlayers((previousRemotePlayers) => {
@@ -43,6 +55,7 @@ export function RemotePlayersController({
           username: identity,
           position: networkPositions.get(identity)!,
           animation: networkAnimations.get(identity)!,
+          character: remoteCharacterLookup.get(identity)! || "doux",
         }));
 
       // Crude interpolation that tries to match the 0.5 second send interval
@@ -67,6 +80,7 @@ export function RemotePlayersController({
   }, [
     networkAnimations,
     networkPositions,
+    remoteCharacterLookup,
     remoteParticipants,
     setRemotePlayers,
   ]);

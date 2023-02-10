@@ -14,8 +14,15 @@ type Props = {
   character: CharacterName;
 };
 
-export function Character({ x, y, username, animation, speaking }: Props) {
-  const animationSheet = useAnimations("doux");
+export function Character({
+  x,
+  y,
+  username,
+  animation,
+  speaking,
+  character,
+}: Props) {
+  const animationSheet = useAnimations(character);
 
   const { color: usernameOutlineColor, thickness: usernameOutlineThickness } =
     useMemo(() => {

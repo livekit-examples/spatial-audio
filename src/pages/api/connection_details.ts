@@ -4,10 +4,12 @@ import livekitServer, {
   AccessToken,
   RoomServiceClient,
 } from "livekit-server-sdk";
+import { CharacterName } from "@/components/CharacterSelector";
 
 export type ConnectionDetailsBody = {
   room_name: string;
   username: string;
+  character: CharacterName;
 };
 
 export type ConnectionDetails = {
@@ -27,7 +29,11 @@ export default async function handler(
     return res.status(400).json({ error: "Invalid method" });
   }
 
-  const { username, room_name: room } = req.body as ConnectionDetailsBody;
+  const {
+    username,
+    room_name: room,
+    character,
+  } = req.body as ConnectionDetailsBody;
   const apiKey = process.env.LIVEKIT_API_KEY;
   const apiSecret = process.env.LIVEKIT_API_SECRET;
   const wsUrl = process.env.LIVEKIT_WS_URL;
@@ -49,5 +55,6 @@ export default async function handler(
   }
 
   at.addGrant({ room, roomJoin: true, canPublish: true, canSubscribe: true });
+  at.metadata = JSON.stringify({ character });
   res.status(200).json({ token: at.toJwt(), ws_url: wsUrl });
 }
