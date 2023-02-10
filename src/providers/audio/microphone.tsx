@@ -4,6 +4,7 @@ import {
   useLocalParticipant,
   useMediaDevices,
 } from "@livekit/components-react";
+import { LocalAudioTrack, Track } from "livekit-client";
 import React, {
   useCallback,
   useContext,
@@ -140,7 +141,9 @@ export function MicrophoneProvider({ children }: Props) {
       if (publishingStream.current === mediaStreamTrack) return;
       publishingStream.current = mediaStreamTrack;
       try {
-        await localParticipant?.publishTrack(mediaStreamTrack);
+        const track = new LocalAudioTrack(mediaStreamTrack);
+        track.source = Track.Source.Microphone;
+        await localParticipant?.publishTrack(track);
       } catch (e) {
         console.error("Error publishing", e);
         publishingStream.current = null;
