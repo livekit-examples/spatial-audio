@@ -139,6 +139,9 @@ export function MicrophoneProvider({ children }: Props) {
   const publishTrack = useCallback(
     async (mediaStreamTrack: MediaStreamTrack) => {
       if (publishingStream.current === mediaStreamTrack) return;
+      if (publishingStream.current) {
+        await localParticipant?.unpublishTrack(publishingStream.current);
+      }
       publishingStream.current = mediaStreamTrack;
       try {
         const track = new LocalAudioTrack(mediaStreamTrack);
@@ -184,6 +187,15 @@ export function MicrophoneProvider({ children }: Props) {
       return prev;
     });
   }, [microphones]);
+
+  // if the user changes the microphone while unmuted, publish the new track
+  useEffect(() => {
+    if (!_muted) {
+      getTrack().then((track) => {
+        if (track) publishTrack(track);
+      });
+    }
+  }, [_muted, getTrack, publishTrack]);
 
   return (
     <MicrophoneContext.Provider
