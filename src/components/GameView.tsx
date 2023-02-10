@@ -44,6 +44,7 @@ export function GameView() {
     worldBoundaries,
     earshotRadius,
     backgroundZIndex,
+    playerSpeed,
     setMyPlayer,
     setInputs,
     setNetworkAnimations,
@@ -115,6 +116,7 @@ export function GameView() {
             {/* @ts-ignore */}
             <Container anchor={[0.5, 0.5]} sortableChildren={true}>
               <MyCharacterController
+                playerSpeed={playerSpeed}
                 inputs={inputs}
                 setMyPlayer={setMyPlayer}
               />

@@ -3,14 +3,17 @@ import { Player } from "@/model/Player";
 import { useTick } from "@pixi/react";
 import { Dispatch, SetStateAction } from "react";
 
-const MAX_SPEED = 6;
-
 type Props = {
+  playerSpeed: number;
   inputs: Inputs;
   setMyPlayer: Dispatch<SetStateAction<Player | null>>;
 };
 
-export function MyCharacterController({ inputs, setMyPlayer }: Props) {
+export function MyCharacterController({
+  playerSpeed,
+  inputs,
+  setMyPlayer,
+}: Props) {
   useTick((delta) => {
     setMyPlayer((prev) => {
       if (!prev) {
@@ -24,8 +27,8 @@ export function MyCharacterController({ inputs, setMyPlayer }: Props) {
       let walking = magnitude > 0.01;
 
       const velocity = {
-        x: magnitude > 0 ? (inputs.direction.x * MAX_SPEED) / magnitude : 0,
-        y: magnitude > 0 ? (inputs.direction.y * MAX_SPEED) / magnitude : 0,
+        x: magnitude > 0 ? (inputs.direction.x * playerSpeed) / magnitude : 0,
+        y: magnitude > 0 ? (inputs.direction.y * playerSpeed) / magnitude : 0,
       };
 
       if (velocity.x > 0 && walking) {

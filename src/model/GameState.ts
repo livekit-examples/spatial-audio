@@ -26,6 +26,7 @@ export const useGameState = () => {
     cameraOffset,
     backgroundZIndex: -100000,
     earshotRadius: 300,
+    playerSpeed: 6,
 
     setMyPlayer,
     setInputs,

@@ -5,7 +5,6 @@ import { AnimationState } from "@/model/AnimationState";
 import { Player } from "@/model/Player";
 import { Vector2 } from "@/model/Vector2";
 import { useRemoteParticipants } from "@livekit/components-react";
-import { Participant } from "livekit-client";
 import { Dispatch, SetStateAction, useCallback, useMemo, useRef } from "react";
 import { useInterval } from "react-use";
 
@@ -21,9 +20,6 @@ export function RemotePlayersController({
   setRemotePlayers,
 }: Props) {
   const remoteParticipants = useRemoteParticipants({});
-  const _interpolatedPositions = useRef<Map<string, { x: number; y: number }>>(
-    new Map()
-  );
 
   const remoteCharacterLookup = useMemo(() => {
     const lookup = new Map<string, CharacterName>();
@@ -31,11 +27,10 @@ export function RemotePlayersController({
       const metadata = JSON.parse(rp.metadata || "{}");
       lookup.set(rp.identity, metadata.character || ("doux" as CharacterName));
     }
-    console.log("NEIL lookup", lookup);
     return lookup;
   }, [remoteParticipants]);
 
-  const interpolatePositions = useCallback(() => {
+  const applyNetworkValues = useCallback(() => {
     setRemotePlayers((previousRemotePlayers) => {
       const participantIdentities = remoteParticipants.map((rp) => rp.identity);
       const previousPlayersLookup = new Map<string, Player>();
@@ -53,27 +48,24 @@ export function RemotePlayersController({
         )
         .map((identity) => ({
           username: identity,
-          position: networkPositions.get(identity)!,
+          position:
+            previousPlayersLookup.get(identity)?.position ||
+            networkPositions.get(identity)!, // use the network position if we don't have a previous one
           animation: networkAnimations.get(identity)!,
           character: remoteCharacterLookup.get(identity)! || "doux",
         }));
 
-      // Crude interpolation that tries to match the 0.5 second send interval
-      // for (const identity of targetKeys) {
-      //   const currentPosition =
-      //     _interpolatedPositions.current.get(identity) ||
-      //     _playerPositions.current.get(identity);
-      //   const targetPosition = _playerPositions.current.get(identity);
-      //   const newPosition = {
-      //     x:
-      //       currentPosition!.x +
-      //       (targetPosition!.x - currentPosition!.x) * (3 / TICK_FPS),
-      //     y:
-      //       currentPosition!.y +
-      //       (targetPosition!.y - currentPosition!.y) * (3 / TICK_FPS),
-      //   };
-      //   _interpolatedPositions.current.set(identity, newPosition);
-      // }
+      // Crude interpolation that tries to match the 0.1 second send interval
+      for (const p of newRemotePlayers) {
+        p.position = {
+          x:
+            p.position.x +
+            (networkPositions.get(p.username)!.x - p.position.x) * (10 / 30),
+          y:
+            p.position.y +
+            (networkPositions.get(p.username)!.y - p.position.y) * (10 / 30),
+        };
+      }
 
       return newRemotePlayers;
     });
@@ -85,11 +77,7 @@ export function RemotePlayersController({
     setRemotePlayers,
   ]);
 
-  const update = useCallback(() => {
-    interpolatePositions();
-  }, [interpolatePositions]);
-
-  useInterval(update, 1000 / 30);
+  useInterval(applyNetworkValues, 1000 / 30);
 
   return null;
 }
