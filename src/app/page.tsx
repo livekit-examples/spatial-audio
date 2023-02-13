@@ -20,7 +20,7 @@ export default function Home() {
     <main>
       <Toaster />
       <div className="flex flex-col items-center justify-center h-screen w-screen">
-        <h1 className="text-4xl mb-8">Spatial Audio LiveKit Example App</h1>
+        <h1 className="text-4xl mb-8 p-2">Spatial Audio LiveKit Example App</h1>
         <form
           onSubmit={(e) => {
             e.preventDefault();
