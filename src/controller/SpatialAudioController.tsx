@@ -1,6 +1,7 @@
 "use-client";
 
 import { Player } from "@/model/Player";
+import { useMobile } from "@/util/useMobile";
 import { useRemoteParticipants, useTrack } from "@livekit/components-react";
 import { RemoteParticipant, RemoteTrackPublication } from "livekit-client";
 import React, {
@@ -24,12 +25,14 @@ function RemoteParticipantPlaybackAudio({
   position,
   myPosition,
 }: RemoteParticipantPlaybackSubscriptionProps) {
+  const mobile = useMobile();
   const { track } = useTrack({ pub: publication });
   const audioEl = useRef<HTMLAudioElement | null>(null);
   const { audioContext } = useWebAudio();
 
   const src = useRef<MediaStreamAudioSourceNode | null>(null);
   const panner = useRef<PannerNode | null>(null);
+  const mobileGainNode = useRef<GainNode | null>(null);
   const relativePosition = useRef<{ x: number; y: number }>({
     x: 1000,
     y: 1000,
@@ -43,22 +46,48 @@ function RemoteParticipantPlaybackAudio({
     };
   }, [myPosition.x, myPosition.y, position.x, position.y]);
 
-  // update panner node position every 100ms
+  // update spatial nodes every 100ms
+  // on mobile we use a gain node because panner nodes have no effect
+  // https://developer.apple.com/forums/thread/696034
   useInterval(() => {
-    if (!panner.current) {
-      return;
-    }
+    // for mobile we use a gain node and use a simple linear falloff
+    if (mobile) {
+      if (!mobileGainNode.current) {
+        return;
+      }
+      const distance = Math.sqrt(
+        relativePosition.current.x ** 2 + relativePosition.current.y ** 2
+      );
+      if (distance < 50) {
+        mobileGainNode.current.gain.setTargetAtTime(1, 0, 0.02);
+      } else {
+        if (distance > 250) {
+          mobileGainNode.current.gain.setTargetAtTime(0, 0, 0.02);
+          return;
+        }
 
-    panner.current.positionX.setTargetAtTime(
-      relativePosition.current.x,
-      0,
-      0.02
-    );
-    panner.current.positionZ.setTargetAtTime(
-      relativePosition.current.y,
-      0,
-      0.02
-    );
+        mobileGainNode.current.gain.setTargetAtTime(
+          1 - (distance - 50) / 200,
+          0,
+          0.02
+        );
+      }
+    } else {
+      if (!panner.current) {
+        return;
+      }
+
+      panner.current.positionX.setTargetAtTime(
+        relativePosition.current.x,
+        0,
+        0.02
+      );
+      panner.current.positionZ.setTargetAtTime(
+        relativePosition.current.y,
+        0,
+        0.02
+      );
+    }
   }, 100);
 
   const cleanupNodes = useCallback(() => {
@@ -69,6 +98,10 @@ function RemoteParticipantPlaybackAudio({
     if (panner.current) {
       panner.current.disconnect();
       panner.current = null;
+    }
+    if (mobileGainNode.current) {
+      mobileGainNode.current.disconnect();
+      mobileGainNode.current = null;
     }
   }, []);
 
@@ -86,24 +119,34 @@ function RemoteParticipantPlaybackAudio({
       audioEl.current.srcObject as any
     );
 
-    panner.current = audioContext.createPanner();
-    panner.current.coneOuterAngle = 360;
-    panner.current.coneInnerAngle = 360;
-    panner.current.positionX.setValueAtTime(1000, 0); // set far away initially so we don't hear it at full volume
-    panner.current.positionY.setValueAtTime(0, 0);
-    panner.current.positionZ.setValueAtTime(0, 0);
-    panner.current.distanceModel = "exponential";
-    panner.current.coneOuterGain = 1;
-    panner.current.refDistance = 100;
-    panner.current.maxDistance = 500;
-    panner.current.rolloffFactor = 2;
+    // mobile panner nodes node supported so we use a gain node
+    if (mobile) {
+      mobileGainNode.current = audioContext.createGain();
+      mobileGainNode.current.gain.setValueAtTime(0, 0);
+      src.current
+        .connect(mobileGainNode.current)
+        .connect(audioContext.destination);
+    } else {
+      panner.current = audioContext.createPanner();
+      panner.current.coneOuterAngle = 360;
+      panner.current.coneInnerAngle = 360;
+      panner.current.positionX.setValueAtTime(1000, 0); // set far away initially so we don't hear it at full volume
+      panner.current.positionY.setValueAtTime(0, 0);
+      panner.current.positionZ.setValueAtTime(0, 0);
+      panner.current.distanceModel = "exponential";
+      panner.current.coneOuterGain = 1;
+      panner.current.refDistance = 100;
+      panner.current.maxDistance = 500;
+      panner.current.rolloffFactor = 2;
 
-    src.current.connect(panner.current).connect(audioContext.destination);
+      src.current.connect(panner.current).connect(audioContext.destination);
+    }
+
     audioEl.current.play();
     audioEl.current.autoplay = true;
     audioEl.current.muted = false;
     audioEl.current.volume = 0;
-  }, [audioContext, cleanupNodes, track]);
+  }, [audioContext, cleanupNodes, mobile, track]);
 
   useEffect(() => {
     connectNodes();
