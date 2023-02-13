@@ -27,9 +27,11 @@ import { CharacterEncoding } from "crypto";
 import { CharacterName } from "./CharacterSelector";
 import { DPad } from "./DPad";
 import { Inputs } from "@/model/Inputs";
+import { useMobile } from "@/util/useMobile";
 
 export function GameView() {
   const { ref, width = 1, height = 1 } = useResizeObserver<HTMLDivElement>();
+  const mobile = useMobile();
   const connectionState = useConnectionState();
   const { localParticipant } = useLocalParticipant();
   const { metadata: localMetadata } = useParticipantInfo({
@@ -113,9 +115,11 @@ export function GameView() {
         setMyPlayer={setMyPlayer}
         localParticipant={localParticipant}
       />
-      <div className="absolute bottom-20 left-5 w-[120px] h-[120px] z-10">
-        <DPad onInput={onMobileInput} />
-      </div>
+      {mobile && (
+        <div className="absolute bottom-20 left-5 w-[120px] h-[120px] z-10">
+          <DPad onInput={onMobileInput} />
+        </div>
+      )}
       <Stage
         className="absolute top-0 left-0 bottom-0 right-0"
         raf={true}
