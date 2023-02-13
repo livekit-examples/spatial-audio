@@ -18,7 +18,7 @@ export const EarshotRadius = ({
   const draw = useCallback(
     (g: Graphics) => {
       g.clear();
-      g.beginFill(0x22ff88, 0.2);
+      g.beginFill(0xffffff, 0.1);
       g.drawCircle(myPlayerPosition.x, myPlayerPosition.y, earshotRadius);
       g.endFill();
     },
