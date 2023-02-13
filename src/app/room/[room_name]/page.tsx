@@ -56,10 +56,6 @@ export default function Page({ params: { room_name } }: Props) {
     [room_name, selectedCharacter]
   );
 
-  useEffect(() => {
-    console.log("NEIL is mobile", isMobile);
-  }, [isMobile]);
-
   // If we don't have any connection details yet, show the username form
   if (connectionDetails === null) {
     return (

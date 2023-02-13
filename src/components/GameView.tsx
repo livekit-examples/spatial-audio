@@ -7,7 +7,7 @@ import {
   useSpeakingParticipants,
 } from "@livekit/components-react";
 import { Container, Stage } from "@pixi/react";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import useResizeObserver from "use-resize-observer";
 import { Character } from "./Character";
 import { InputController } from "@/controller/InputController";
@@ -25,6 +25,8 @@ import { AnimationsProvider } from "@/providers/animations";
 import { Shadows } from "./Shadows";
 import { CharacterEncoding } from "crypto";
 import { CharacterName } from "./CharacterSelector";
+import { DPad } from "./DPad";
+import { Inputs } from "@/model/Inputs";
 
 export function GameView() {
   const { ref, width = 1, height = 1 } = useResizeObserver<HTMLDivElement>();
@@ -52,6 +54,10 @@ export function GameView() {
     setRemotePlayers,
   } = useGameState();
 
+  const [mobileInputs, setMobileInputs] = useState<Inputs>({
+    direction: { x: 0, y: 0 },
+  });
+
   const speakingLookup = useMemo(() => {
     const lookup = new Set<string>();
     for (const p of speakingParticipants) {
@@ -70,6 +76,10 @@ export function GameView() {
     () => JSON.parse(localMetadata || "{}").character || null,
     [localMetadata]
   );
+
+  const onMobileInput = useCallback((x: number, y: number) => {
+    setMobileInputs({ direction: { x, y: -y } });
+  }, []);
 
   if (connectionState !== ConnectionState.Connected) {
     return null;
@@ -96,13 +106,16 @@ export function GameView() {
         networkPositions={networkPositions}
         setRemotePlayers={setRemotePlayers}
       />
-      <InputController setInputs={setInputs} />
+      <InputController mobileInputs={mobileInputs} setInputs={setInputs} />
       <MyPlayerSpawnController
         localCharacter={localCharacter}
         myPlayer={myPlayer}
         setMyPlayer={setMyPlayer}
         localParticipant={localParticipant}
       />
+      <div className="absolute bottom-20 left-5 w-[120px] h-[120px] z-10">
+        <DPad onInput={onMobileInput} />
+      </div>
       <Stage
         className="absolute top-0 left-0 bottom-0 right-0"
         raf={true}

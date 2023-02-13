@@ -1,4 +1,5 @@
 import { Inputs } from "@/model/Inputs";
+import { useMobile } from "@/util/useMobile";
 import {
   Dispatch,
   SetStateAction,
@@ -8,10 +9,12 @@ import {
 } from "react";
 
 type Props = {
+  mobileInputs?: Inputs;
   setInputs: Dispatch<SetStateAction<Inputs>>;
 };
 
-export const InputController = ({ setInputs }: Props) => {
+export const InputController = ({ setInputs, mobileInputs }: Props) => {
+  const isMobile = useMobile();
   const keyDownListener = useCallback(
     (e: KeyboardEvent) => {
       setInputs((prev) => {
@@ -65,6 +68,7 @@ export const InputController = ({ setInputs }: Props) => {
   );
 
   useEffect(() => {
+    if (isMobile) return;
     document.addEventListener("keydown", keyDownListener);
     document.addEventListener("keyup", keyUpListener);
 
@@ -72,7 +76,12 @@ export const InputController = ({ setInputs }: Props) => {
       document.removeEventListener("keydown", keyDownListener);
       document.removeEventListener("keyup", keyUpListener);
     };
-  }, [keyDownListener, keyUpListener]);
+  }, [isMobile, keyDownListener, keyUpListener, mobileInputs]);
+
+  useEffect(() => {
+    if (!isMobile || !mobileInputs) return;
+    setInputs(mobileInputs);
+  }, [isMobile, mobileInputs, setInputs]);
 
   return null;
 };

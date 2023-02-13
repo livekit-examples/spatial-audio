@@ -25,7 +25,7 @@ export function MicrophoneSelector() {
             selectMicrophone(Number(e.currentTarget.value));
           }}
           value={selectedMicrophoneIndex}
-          className="select select-sm w-full sm:max-w-[200px] max-w-[100px] m-2"
+          className="select select-sm w-full sm:max-w-[200px] max-w-[100px] m-2 select-none"
         >
           <option value={-1} disabled>
             Choose your microphone
@@ -37,7 +37,7 @@ export function MicrophoneSelector() {
           ))}
         </select>
         <button
-          className="text-white mr-1 h-[40px]"
+          className="text-white mr-1 h-[40px] select-none"
           onClick={() => {
             selectMicrophone(sineWaveIndex);
           }}
@@ -55,7 +55,7 @@ export function MicrophoneSelector() {
           </div>
         </button>
         <button
-          className="text-white"
+          className="text-white select-none"
           onClick={() => {
             selectMicrophone(discoIndex);
           }}
