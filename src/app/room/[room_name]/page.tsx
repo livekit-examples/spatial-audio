@@ -4,7 +4,6 @@ import { MicrophoneProvider } from "@/providers/audio/microphone";
 import { WebAudioProvider } from "@/providers/audio/webAudio";
 import { BottomBar } from "@/components/BottomBar";
 import { GameView } from "@/components/GameView";
-import { ParticipantList } from "@/components/ParticipantList";
 import { RoomInfo } from "@/components/RoomInfo";
 import { UsernameInput } from "@/components/UsernameInput";
 import {
@@ -12,12 +11,13 @@ import {
   ConnectionDetailsBody,
 } from "@/pages/api/connection_details";
 import { LiveKitRoom } from "@livekit/components-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import {
   CharacterName,
   CharacterSelector,
 } from "@/components/CharacterSelector";
+import { useMobile } from "@/util/useMobile";
 
 type Props = {
   params: { room_name: string };
@@ -28,6 +28,7 @@ export default function Page({ params: { room_name } }: Props) {
     useState<ConnectionDetails | null>(null);
   const [selectedCharacter, setSelectedCharacter] =
     useState<CharacterName>("doux");
+  const isMobile = useMobile();
 
   const humanRoomName = useMemo(() => {
     return decodeURI(room_name);
@@ -54,6 +55,10 @@ export default function Page({ params: { room_name } }: Props) {
     },
     [room_name, selectedCharacter]
   );
+
+  useEffect(() => {
+    console.log("NEIL is mobile", isMobile);
+  }, [isMobile]);
 
   // If we don't have any connection details yet, show the username form
   if (connectionDetails === null) {
@@ -96,7 +101,11 @@ export default function Page({ params: { room_name } }: Props) {
         <WebAudioProvider>
           <MicrophoneProvider>
             <div className="flex h-screen w-screen">
-              <div className="flex flex-col w-full h-full">
+              <div
+                className={`flex ${
+                  isMobile ? "flex-col-reverse" : "flex-col"
+                } w-full h-full`}
+              >
                 <div className="grow flex">
                   <div className="grow">
                     <GameView />
