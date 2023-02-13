@@ -25,7 +25,7 @@ export function MicrophoneSelector() {
             selectMicrophone(Number(e.currentTarget.value));
           }}
           value={selectedMicrophoneIndex}
-          className="select select-sm w-full max-w-[200px] m-2"
+          className="select select-sm w-full sm:max-w-[200px] max-w-[100px] m-2"
         >
           <option value={-1} disabled>
             Choose your microphone

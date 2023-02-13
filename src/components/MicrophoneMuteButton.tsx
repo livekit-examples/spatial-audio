@@ -1,11 +1,9 @@
 import { useMicrophone } from "@/providers/audio/microphone";
-import { useMemo } from "react";
 import Mic from "@/components/icons/mic.svg";
 import MicOff from "@/components/icons/mic-off.svg";
 
 export function MicrophoneMuteButton() {
   const { muted, setMuted } = useMicrophone();
-  const text = useMemo(() => (muted ? "Unmute" : "Mute"), [muted]);
   return (
     <div className="flex items-center">
       <button

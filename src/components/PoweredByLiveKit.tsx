@@ -6,12 +6,12 @@ export const PoweredByLiveKit = () => {
     <div className="h-full">
       <a
         target="_blank"
-        className="flex items-center h-full"
+        className="flex sm:flex-row flex-col items-center justify-center h-full"
         rel="noreferrer"
         href="https://livekit.io"
       >
-        <div className="text-xs text-primary mr-2">Powered by</div>
-        <div className="h-full grow w-[60px] relative">
+        <div className="text-xs text-primary sm:mr-2 mr-0">Powered by</div>
+        <div className="sm:h-full h-[20px] w-[60px] relative">
           <Image
             alt="livekit logo"
             style={{ objectFit: "contain" }}
