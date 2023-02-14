@@ -11,7 +11,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useInterval } from "react-use";
 import { useWebAudio } from "../providers/audio/webAudio";
 
 type RemoteParticipantPlaybackSubscriptionProps = {
@@ -33,30 +32,35 @@ function RemoteParticipantPlaybackAudio({
   const src = useRef<MediaStreamAudioSourceNode | null>(null);
   const panner = useRef<PannerNode | null>(null);
   const mobileGainNode = useRef<GainNode | null>(null);
-  const relativePosition = useRef<{ x: number; y: number }>({
+  const [relativePosition, setRelativePosition] = useState<{
+    x: number;
+    y: number;
+  }>({
     x: 1000,
     y: 1000,
   }); // set as far away initially
 
   // calculate relative position when position changes
   useEffect(() => {
-    relativePosition.current = {
-      x: position.x - myPosition.x,
-      y: position.y - myPosition.y,
-    };
+    setRelativePosition((prev) => {
+      return {
+        x: position.x - myPosition.x,
+        y: position.y - myPosition.y,
+      };
+    });
   }, [myPosition.x, myPosition.y, position.x, position.y]);
 
   // update spatial nodes every 100ms
   // on mobile we use a gain node because panner nodes have no effect
   // https://developer.apple.com/forums/thread/696034
-  useInterval(() => {
+  useEffect(() => {
     // for mobile we use a gain node and use a simple linear falloff
     if (mobile) {
       if (!mobileGainNode.current) {
         return;
       }
       const distance = Math.sqrt(
-        relativePosition.current.x ** 2 + relativePosition.current.y ** 2
+        relativePosition.x ** 2 + relativePosition.y ** 2
       );
       if (distance < 50) {
         mobileGainNode.current.gain.setTargetAtTime(1, 0, 0.02);
@@ -77,18 +81,10 @@ function RemoteParticipantPlaybackAudio({
         return;
       }
 
-      panner.current.positionX.setTargetAtTime(
-        relativePosition.current.x,
-        0,
-        0.02
-      );
-      panner.current.positionZ.setTargetAtTime(
-        relativePosition.current.y,
-        0,
-        0.02
-      );
+      panner.current.positionX.setTargetAtTime(relativePosition.x, 0, 0.02);
+      panner.current.positionZ.setTargetAtTime(relativePosition.y, 0, 0.02);
     }
-  }, 100);
+  }, [mobile, relativePosition.x, relativePosition.y]);
 
   const cleanupNodes = useCallback(() => {
     if (src.current) {
