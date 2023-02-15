@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AnimationState } from "./AnimationState";
 import { Inputs } from "./Inputs";
+import { JukeBoxState } from "./JukeBoxState";
 import { Player } from "./Player";
 import { Vector2 } from "./Vector2";
 
@@ -15,6 +16,13 @@ export const useGameState = () => {
     Map<string, AnimationState>
   >(new Map());
   const [cameraOffset, setCameraOffset] = useState<Vector2>({ x: 0, y: 0 });
+  const [jukeBoxPosition, setJukeBoxPosition] = useState<Vector2>({
+    x: 0,
+    y: 0,
+  });
+  const [jukeBoxState, setJukeBoxState] = useState<JukeBoxState>({
+    type: "off",
+  });
 
   return {
     inputs,
@@ -27,6 +35,8 @@ export const useGameState = () => {
     backgroundZIndex: -100000,
     earshotRadius: 300,
     playerSpeed: 6,
+    jukeBoxPosition,
+    jukeBoxState,
 
     setMyPlayer,
     setInputs,
@@ -34,5 +44,7 @@ export const useGameState = () => {
     setNetworkPositions,
     setNetworkAnimations,
     setCameraOffset,
+    setJukeBoxPosition,
+    setJukeBoxState,
   };
 };

@@ -29,6 +29,8 @@ import { DPad } from "./DPad";
 import { Inputs } from "@/model/Inputs";
 import { useMobile } from "@/util/useMobile";
 import { Stage } from "./Stage";
+import { JukeBox } from "./JukeBox";
+import { JukeBoxModal } from "./JukeBoxModal";
 
 export function GameView() {
   const { ref, width = 1, height = 1 } = useResizeObserver<HTMLDivElement>();
@@ -50,6 +52,7 @@ export function GameView() {
     earshotRadius,
     backgroundZIndex,
     playerSpeed,
+    jukeBoxPosition,
     setMyPlayer,
     setInputs,
     setNetworkAnimations,
@@ -84,6 +87,14 @@ export function GameView() {
     setMobileInputs({ direction: { x, y: -y } });
   }, []);
 
+  const distanceFromJukeBox = useMemo(() => {
+    if (!myPlayer) return Infinity;
+    return Math.sqrt(
+      (myPlayer.position.x - jukeBoxPosition.x) ** 2 +
+        (myPlayer.position.y - jukeBoxPosition.y) ** 2
+    );
+  }, [jukeBoxPosition.x, jukeBoxPosition.y, myPlayer]);
+
   if (connectionState !== ConnectionState.Connected) {
     return null;
   }
@@ -116,6 +127,13 @@ export function GameView() {
         setMyPlayer={setMyPlayer}
         localParticipant={localParticipant}
       />
+      {distanceFromJukeBox < 20 && (
+        <div className="absolute w-screen h-screen flex justify-center items-center z-10">
+          <div className="shadow-md">
+            <JukeBoxModal />
+          </div>
+        </div>
+      )}
       {mobile && (
         <div className="absolute bottom-20 left-5 w-[120px] h-[120px] z-10">
           <DPad onInput={onMobileInput} />
@@ -155,6 +173,10 @@ export function GameView() {
                   animation={myPlayer.animation}
                 />
               )}
+              <JukeBox
+                backgroundZIndex={backgroundZIndex}
+                position={jukeBoxPosition}
+              />
               <World
                 backgroundZIndex={backgroundZIndex}
                 worldBoundaries={worldBoundaries}
