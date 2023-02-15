@@ -72,6 +72,7 @@ export default function Page({ params: { room_name } }: Props) {
           submitText="Join Room"
           onSubmit={async (username) => {
             try {
+              // TODO unify this kind of pattern across examples, either with the `useToken` hook or an equivalent
               const connectionDetails = await requestConnectionDetails(
                 username
               );

@@ -2,8 +2,16 @@
 
 import { Player } from "@/model/Player";
 import { useMobile } from "@/util/useMobile";
-import { useRemoteParticipants, useTrack } from "@livekit/components-react";
-import { RemoteParticipant, RemoteTrackPublication } from "livekit-client";
+import {
+  useMediaTrack,
+  useRemoteParticipants,
+  useTrack,
+} from "@livekit/components-react";
+import {
+  RemoteParticipant,
+  RemoteTrackPublication,
+  Track,
+} from "livekit-client";
 import React, {
   useCallback,
   useEffect,
@@ -186,38 +194,19 @@ function RemoteParticipantPlayback({
     return Math.sqrt(dx * dx + dy * dy);
   }, [myPosition.x, myPosition.y, position.x, position.y]);
 
-  const [publication, setPublication] = useState<RemoteTrackPublication | null>(
-    null
-  );
-
   const hearable = useMemo(
     () => distance <= maxHearableDistance,
     [distance, maxHearableDistance]
   );
 
-  useEffect(() => {
-    const onPublication = (publication: RemoteTrackPublication) => {
-      if (publication.kind !== "audio") {
-        return;
-      }
-      setPublication(publication);
-    };
-
-    // add existing tracks
-    participant.tracks.forEach((pub) => {
-      onPublication(pub);
-    });
-
-    participant.on("trackPublished", onPublication);
-
-    return () => {
-      participant.off("trackPublished", onPublication);
-    };
-  }, [participant]);
+  const { publication } = useMediaTrack({
+    participant,
+    source: Track.Source.Microphone,
+  });
 
   return (
     <div>
-      {hearable && publication && (
+      {hearable && publication instanceof RemoteTrackPublication && (
         <RemoteParticipantPlaybackAudio
           publication={publication}
           position={position}
