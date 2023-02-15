@@ -1,20 +1,13 @@
 import React, { useContext } from "react";
 
-type Data = {
-  audioContext: AudioContext;
-};
+export const WebAudioContext = React.createContext<AudioContext | undefined>(
+  undefined
+);
 
-const defaultValue: Data = {
-  audioContext: new AudioContext(),
-};
-
-export const WebAudioContext = React.createContext(defaultValue);
-
-export function useWebAudio() {
+export function useWebAudioContext() {
   const ctx = useContext(WebAudioContext);
-  if (!ctx.audioContext) {
+  if (!ctx) {
     throw "useWebAudio must be used within a WebAudioProvider";
   }
-
   return ctx;
 }

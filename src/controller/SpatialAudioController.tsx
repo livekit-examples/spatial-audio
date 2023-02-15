@@ -13,7 +13,7 @@ import {
   Track,
 } from "livekit-client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useWebAudio } from "../providers/audio/webAudio";
+import { useWebAudioContext } from "../providers/audio/webAudio";
 
 type RemoteParticipantPlaybackSubscriptionProps = {
   participant: RemoteParticipant;
@@ -27,7 +27,6 @@ function RemoteParticipantPlaybackAudio({
   myPosition,
 }: RemoteParticipantPlaybackSubscriptionProps) {
   const mobile = useMobile();
-
   const audioEl = useRef<HTMLAudioElement | null>(null);
 
   const { track, publication } = useMediaTrack({
@@ -35,9 +34,8 @@ function RemoteParticipantPlaybackAudio({
     source: Track.Source.Microphone,
     element: audioEl,
   });
-  const { audioContext } = useWebAudio();
+  const audioContext = useWebAudioContext();
 
-  const src = useRef<MediaStreamAudioSourceNode | null>(null);
   const panner = useMemo(() => audioContext.createPanner(), [audioContext]);
   const [relativePosition, setRelativePosition] = useState<{
     x: number;
@@ -78,7 +76,7 @@ function RemoteParticipantPlaybackAudio({
   // On mobile we use a gain node because panner nodes have no effect
   // https://developer.apple.com/forums/thread/696034
   useEffect(() => {
-    // for mobile we use a the setVolume method and use a simple linear falloff
+    // for mobile we use the setVolume method and use a simple linear falloff
     if (mobile) {
       const distance = Math.sqrt(
         relativePosition.x ** 2 + relativePosition.y ** 2

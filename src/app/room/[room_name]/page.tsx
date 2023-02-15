@@ -97,7 +97,7 @@ export default function Page({ params: { room_name } }: Props) {
         connectOptions={{ autoSubscribe: false }}
         options={{ expWebAudioMix: { audioContext } }}
       >
-        <WebAudioContext.Provider value={{ audioContext }}>
+        <WebAudioContext.Provider value={audioContext}>
           <div className="flex h-screen w-screen">
             <div
               className={`flex ${
