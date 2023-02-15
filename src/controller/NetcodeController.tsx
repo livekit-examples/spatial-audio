@@ -8,6 +8,7 @@ import {
   useDataChannelMessages,
   useRemoteParticipants,
 } from "@livekit/components-react";
+// TODO we should re-export this type form components-react
 import type { BaseDataMessage } from "@livekit/components-core";
 import { ConnectionState, DataPacket_Kind } from "livekit-client";
 import React, {
