@@ -1,3 +1,4 @@
+// adapted context bridge from https://pixijs.io/pixi-react/context-bridge/ for providing LiveKit room context to pixi components
 import { Stage as PixiStage } from "@pixi/react";
 import { RoomContext } from "@livekit/components-react";
 
