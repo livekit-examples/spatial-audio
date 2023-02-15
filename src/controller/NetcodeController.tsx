@@ -8,6 +8,7 @@ import {
   useDataChannelMessages,
   useRemoteParticipants,
 } from "@livekit/components-react";
+import type { BaseDataMessage } from "@livekit/components-core";
 import { ConnectionState, DataPacket_Kind } from "livekit-client";
 import React, {
   Dispatch,
@@ -25,15 +26,25 @@ type Props = {
   setNetworkAnimations: Dispatch<SetStateAction<Map<string, AnimationState>>>;
 };
 
+interface PositionMessage extends BaseDataMessage {
+  channelId: "position";
+  payload: { x: number; y: number };
+}
+
+interface AnimationMessage extends BaseDataMessage {
+  channelId: "animation";
+  payload: AnimationState;
+}
+
 export function NetcodeController({
   myPlayer,
   setNetworkAnimations,
   setNetworkPositions,
 }: Props) {
   const { message: positionMessage, send: positionSend } =
-    useDataChannelMessages({ channelId: "position" });
+    useDataChannelMessages<PositionMessage>("position");
   const { message: animationMessage, send: animationSend } =
-    useDataChannelMessages({ channelId: "animation" });
+    useDataChannelMessages<AnimationMessage>("animation");
 
   const connectionState = useConnectionState();
   const remoteParticipants = useRemoteParticipants({});
@@ -99,7 +110,7 @@ export function NetcodeController({
     if (!positionMessage?.from?.identity || !positionMessage.payload) return;
     _playerPositions.current.set(
       positionMessage.from.identity,
-      positionMessage.payload as { x: number; y: number }
+      positionMessage.payload
     );
   }, [positionMessage]);
 
@@ -108,7 +119,7 @@ export function NetcodeController({
     if (!animationMessage?.from?.identity || !animationMessage.payload) return;
     _animations.current.set(
       animationMessage.from.identity,
-      animationMessage.payload as AnimationState
+      animationMessage.payload
     );
   }, [animationMessage]);
 
