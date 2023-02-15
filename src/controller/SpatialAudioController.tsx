@@ -50,8 +50,7 @@ function RemoteParticipantPlaybackAudio({
     });
   }, [myPosition.x, myPosition.y, position.x, position.y]);
 
-  // update spatial nodes every 100ms
-  // on mobile we use a gain node because panner nodes have no effect
+  // On mobile we use a gain node because panner nodes have no effect
   // https://developer.apple.com/forums/thread/696034
   useEffect(() => {
     // for mobile we use a gain node and use a simple linear falloff
