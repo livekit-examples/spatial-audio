@@ -29,9 +29,8 @@ function RemoteParticipantPlaybackAudio({
   const mobile = useMobile();
   const audioEl = useRef<HTMLAudioElement | null>(null);
 
-  const { track, publication } = useMediaTrack({
+  const { track, publication } = useMediaTrack(Track.Source.Microphone, {
     participant,
-    source: Track.Source.Microphone,
     element: audioEl,
   });
   const audioContext = useWebAudioContext();
@@ -137,9 +136,8 @@ function RemoteParticipantPlayback({
     [distance, maxHearableDistance]
   );
 
-  const { publication } = useMediaTrack({
+  const { publication } = useMediaTrack(Track.Source.Microphone, {
     participant,
-    source: Track.Source.Microphone,
   });
 
   return (
