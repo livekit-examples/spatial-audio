@@ -1,7 +1,6 @@
 "use client";
 
-import { MicrophoneProvider } from "@/providers/audio/microphone";
-import { WebAudioProvider } from "@/providers/audio/webAudio";
+import { WebAudioContext } from "@/providers/audio/webAudio";
 import { BottomBar } from "@/components/BottomBar";
 import { GameView } from "@/components/GameView";
 import { RoomInfo } from "@/components/RoomInfo";
@@ -11,7 +10,7 @@ import {
   ConnectionDetailsBody,
 } from "@/pages/api/connection_details";
 import { LiveKitRoom } from "@livekit/components-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import {
   CharacterName,
@@ -29,6 +28,8 @@ export default function Page({ params: { room_name } }: Props) {
   const [selectedCharacter, setSelectedCharacter] =
     useState<CharacterName>("doux");
   const isMobile = useMobile();
+
+  const audioContext = new AudioContext();
 
   const humanRoomName = useMemo(() => {
     return decodeURI(room_name);
@@ -94,27 +95,26 @@ export default function Page({ params: { room_name } }: Props) {
         serverUrl={connectionDetails.ws_url}
         connect={true}
         connectOptions={{ autoSubscribe: false }}
+        options={{ expWebAudioMix: { audioContext } }}
       >
-        <WebAudioProvider>
-          <MicrophoneProvider>
-            <div className="flex h-screen w-screen">
-              <div
-                className={`flex ${
-                  isMobile ? "flex-col-reverse" : "flex-col"
-                } w-full h-full`}
-              >
-                <div className="grow flex">
-                  <div className="grow">
-                    <GameView />
-                  </div>
-                </div>
-                <div className="bg-neutral">
-                  <BottomBar />
+        <WebAudioContext.Provider value={{ audioContext }}>
+          <div className="flex h-screen w-screen">
+            <div
+              className={`flex ${
+                isMobile ? "flex-col-reverse" : "flex-col"
+              } w-full h-full`}
+            >
+              <div className="grow flex">
+                <div className="grow">
+                  <GameView />
                 </div>
               </div>
+              <div className="bg-neutral">
+                <BottomBar />
+              </div>
             </div>
-          </MicrophoneProvider>
-        </WebAudioProvider>
+          </div>
+        </WebAudioContext.Provider>
       </LiveKitRoom>
     </div>
   );

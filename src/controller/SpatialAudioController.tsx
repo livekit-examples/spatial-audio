@@ -5,41 +5,40 @@ import { useMobile } from "@/util/useMobile";
 import {
   useMediaTrack,
   useRemoteParticipants,
-  useTrack,
 } from "@livekit/components-react";
 import {
+  RemoteAudioTrack,
   RemoteParticipant,
   RemoteTrackPublication,
   Track,
 } from "livekit-client";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useWebAudio } from "../providers/audio/webAudio";
 
 type RemoteParticipantPlaybackSubscriptionProps = {
-  publication: RemoteTrackPublication;
+  participant: RemoteParticipant;
   position: { x: number; y: number };
   myPosition: { x: number; y: number };
 };
 
 function RemoteParticipantPlaybackAudio({
-  publication,
+  participant,
   position,
   myPosition,
 }: RemoteParticipantPlaybackSubscriptionProps) {
   const mobile = useMobile();
-  const { track } = useTrack({ pub: publication });
+
   const audioEl = useRef<HTMLAudioElement | null>(null);
+
+  const { track, publication } = useMediaTrack({
+    participant,
+    source: Track.Source.Microphone,
+    element: audioEl,
+  });
   const { audioContext } = useWebAudio();
 
   const src = useRef<MediaStreamAudioSourceNode | null>(null);
-  const panner = useRef<PannerNode | null>(null);
-  const mobileGainNode = useRef<GainNode | null>(null);
+  const panner = useMemo(() => audioContext.createPanner(), [audioContext]);
   const [relativePosition, setRelativePosition] = useState<{
     x: number;
     y: number;
@@ -58,116 +57,57 @@ function RemoteParticipantPlaybackAudio({
     });
   }, [myPosition.x, myPosition.y, position.x, position.y]);
 
+  // set up panner node for desktop
+  useEffect(() => {
+    if (!(track instanceof RemoteAudioTrack) || mobile) {
+      return;
+    }
+    panner.coneOuterAngle = 360;
+    panner.coneInnerAngle = 360;
+    panner.positionX.setValueAtTime(1000, 0); // set far away initially so we don't hear it at full volume
+    panner.positionY.setValueAtTime(0, 0);
+    panner.positionZ.setValueAtTime(0, 0);
+    panner.distanceModel = "exponential";
+    panner.coneOuterGain = 1;
+    panner.refDistance = 100;
+    panner.maxDistance = 500;
+    panner.rolloffFactor = 2;
+    track.setWebAudioPlugins([panner]);
+  }, [track, panner, mobile]);
+
   // On mobile we use a gain node because panner nodes have no effect
   // https://developer.apple.com/forums/thread/696034
   useEffect(() => {
-    // for mobile we use a gain node and use a simple linear falloff
+    // for mobile we use a the setVolume method and use a simple linear falloff
     if (mobile) {
-      if (!mobileGainNode.current) {
-        return;
-      }
       const distance = Math.sqrt(
         relativePosition.x ** 2 + relativePosition.y ** 2
       );
       if (distance < 50) {
-        mobileGainNode.current.gain.setTargetAtTime(1, 0, 0.02);
+        participant.setVolume(1);
       } else {
         if (distance > 250) {
-          mobileGainNode.current.gain.setTargetAtTime(0, 0, 0.02);
+          participant.setVolume(0);
           return;
         }
-
-        mobileGainNode.current.gain.setTargetAtTime(
-          1 - (distance - 50) / 200,
-          0,
-          0.02
-        );
+        participant.setVolume(1 - (distance - 50) / 200);
       }
     } else {
-      if (!panner.current) {
-        return;
-      }
+      panner.positionX.setTargetAtTime(relativePosition.x, 0, 0.02);
+      panner.positionZ.setTargetAtTime(relativePosition.y, 0, 0.02);
+    }
+  }, [mobile, relativePosition.x, relativePosition.y, panner, participant]);
 
-      panner.current.positionX.setTargetAtTime(relativePosition.x, 0, 0.02);
-      panner.current.positionZ.setTargetAtTime(relativePosition.y, 0, 0.02);
-    }
-  }, [mobile, relativePosition.x, relativePosition.y]);
-
-  const cleanupNodes = useCallback(() => {
-    if (src.current) {
-      src.current.disconnect();
-      src.current = null;
-    }
-    if (panner.current) {
-      panner.current.disconnect();
-      panner.current = null;
-    }
-    if (mobileGainNode.current) {
-      mobileGainNode.current.disconnect();
-      mobileGainNode.current = null;
-    }
-  }, []);
-
-  const connectNodes = useCallback(() => {
-    if (!audioContext || !track || !track.mediaStream || !audioEl.current) {
+  useEffect(() => {
+    if (!(publication instanceof RemoteTrackPublication)) {
       return;
     }
-
-    if (src.current || panner.current) {
-      cleanupNodes();
-    }
-
-    audioEl.current.srcObject = track.mediaStream;
-    src.current = audioContext.createMediaStreamSource(
-      audioEl.current.srcObject as any
-    );
-
-    // mobile panner nodes node supported so we use a gain node
-    if (mobile) {
-      mobileGainNode.current = audioContext.createGain();
-      mobileGainNode.current.gain.setValueAtTime(0, 0);
-      src.current
-        .connect(mobileGainNode.current)
-        .connect(audioContext.destination);
-    } else {
-      panner.current = audioContext.createPanner();
-      panner.current.coneOuterAngle = 360;
-      panner.current.coneInnerAngle = 360;
-      panner.current.positionX.setValueAtTime(1000, 0); // set far away initially so we don't hear it at full volume
-      panner.current.positionY.setValueAtTime(0, 0);
-      panner.current.positionZ.setValueAtTime(0, 0);
-      panner.current.distanceModel = "exponential";
-      panner.current.coneOuterGain = 1;
-      panner.current.refDistance = 100;
-      panner.current.maxDistance = 500;
-      panner.current.rolloffFactor = 2;
-
-      src.current.connect(panner.current).connect(audioContext.destination);
-    }
-
-    audioEl.current.play();
-    audioEl.current.autoplay = true;
-    audioEl.current.muted = false;
-    audioEl.current.volume = 0;
-  }, [audioContext, cleanupNodes, mobile, track]);
-
-  useEffect(() => {
-    connectNodes();
-
+    publication?.setSubscribed(true);
     return () => {
-      cleanupNodes();
-    };
-  }, [cleanupNodes, connectNodes]);
-
-  useEffect(() => {
-    publication.setSubscribed(true);
-
-    return () => {
-      publication.setSubscribed(false);
+      publication?.setSubscribed(false);
     };
   }, [publication]);
 
-  useEffect(() => {}, []);
   return (
     <>
       <audio muted={true} ref={audioEl} />
@@ -208,7 +148,7 @@ function RemoteParticipantPlayback({
     <div>
       {hearable && publication instanceof RemoteTrackPublication && (
         <RemoteParticipantPlaybackAudio
-          publication={publication}
+          participant={participant}
           position={position}
           myPosition={myPosition}
         />

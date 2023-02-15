@@ -4,7 +4,7 @@ import {
 } from "@livekit/components-react";
 
 export function MicrophoneSelector() {
-  // TODO remove room context, this is only needed because of a bug in the `useMediaDeviceSelect`
+  // TODO remove roomContext, this is only needed because of a bug in `useMediaDeviceSelect`
   const roomContext = useRoomContext();
   const { devices, activeDeviceId, setActiveMediaDevice } =
     useMediaDeviceSelect({ kind: "audioinput", room: roomContext });

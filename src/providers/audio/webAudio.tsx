@@ -1,39 +1,20 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext } from "react";
 
 type Data = {
-  audioContext: AudioContext | null;
+  audioContext: AudioContext;
 };
 
 const defaultValue: Data = {
-  audioContext: null,
+  audioContext: new AudioContext(),
 };
 
-const WebAudioContext = React.createContext({
-  _provider: false,
-  data: defaultValue,
-});
-
-type Props = {
-  children: React.ReactNode;
-};
-
-export function WebAudioProvider({ children }: Props) {
-  const audioContext = useRef<AudioContext>(new AudioContext());
-
-  return (
-    <WebAudioContext.Provider
-      value={{ _provider: true, data: { audioContext: audioContext.current } }}
-    >
-      {children}
-    </WebAudioContext.Provider>
-  );
-}
+export const WebAudioContext = React.createContext(defaultValue);
 
 export function useWebAudio() {
   const ctx = useContext(WebAudioContext);
-  if (!ctx._provider) {
+  if (!ctx.audioContext) {
     throw "useWebAudio must be used within a WebAudioProvider";
   }
 
-  return ctx.data;
+  return ctx;
 }
