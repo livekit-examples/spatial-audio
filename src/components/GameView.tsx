@@ -6,7 +6,7 @@ import {
   useParticipantInfo,
   useSpeakingParticipants,
 } from "@livekit/components-react";
-import { Container, Stage } from "@pixi/react";
+import { Container } from "@pixi/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import useResizeObserver from "use-resize-observer";
 import { Character } from "./Character";
@@ -28,6 +28,7 @@ import { CharacterName } from "./CharacterSelector";
 import { DPad } from "./DPad";
 import { Inputs } from "@/model/Inputs";
 import { useMobile } from "@/util/useMobile";
+import { Stage } from "./Stage";
 
 export function GameView() {
   const { ref, width = 1, height = 1 } = useResizeObserver<HTMLDivElement>();
