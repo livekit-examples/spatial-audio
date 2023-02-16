@@ -31,6 +31,7 @@ import { useMobile } from "@/util/useMobile";
 import { Stage } from "./Stage";
 import { JukeBox } from "./JukeBox";
 import { JukeBoxModal } from "./JukeBoxModal";
+import { JukeBoxProvider } from "@/controller/JukeBoxProvider";
 
 export function GameView() {
   const { ref, width = 1, height = 1 } = useResizeObserver<HTMLDivElement>();
@@ -127,13 +128,15 @@ export function GameView() {
         setMyPlayer={setMyPlayer}
         localParticipant={localParticipant}
       />
-      {distanceFromJukeBox < 20 && (
-        <div className="absolute w-screen h-screen flex justify-center items-center z-10">
-          <div className="shadow-md">
-            <JukeBoxModal />
+      <JukeBoxProvider>
+        {distanceFromJukeBox < 20 && (
+          <div className="absolute w-screen h-screen flex justify-center items-center z-10">
+            <div className="shadow-md">
+              <JukeBoxModal />
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </JukeBoxProvider>
       {mobile && (
         <div className="absolute bottom-20 left-5 w-[120px] h-[120px] z-10">
           <DPad onInput={onMobileInput} />
