@@ -10,7 +10,7 @@ import {
   ConnectionDetailsBody,
 } from "@/pages/api/connection_details";
 import { LiveKitRoom } from "@livekit/components-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import {
   CharacterName,
@@ -28,8 +28,17 @@ export default function Page({ params: { room_name } }: Props) {
   const [selectedCharacter, setSelectedCharacter] =
     useState<CharacterName>("doux");
   const isMobile = useMobile();
+  const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
 
-  const audioContext = new AudioContext();
+  useEffect(() => {
+    setAudioContext(new AudioContext());
+    return () => {
+      setAudioContext((prev) => {
+        prev?.close();
+        return null;
+      });
+    };
+  }, []);
 
   const humanRoomName = useMemo(() => {
     return decodeURI(room_name);
@@ -56,6 +65,10 @@ export default function Page({ params: { room_name } }: Props) {
     },
     [room_name, selectedCharacter]
   );
+
+  if (!audioContext) {
+    return null;
+  }
 
   // If we don't have any connection details yet, show the username form
   if (connectionDetails === null) {
@@ -105,9 +118,7 @@ export default function Page({ params: { room_name } }: Props) {
               } w-full h-full`}
             >
               <div className="grow flex">
-                <div className="grow">
-                  <GameView />
-                </div>
+                <div className="grow">{/* <GameView /> */}</div>
               </div>
               <div className="bg-neutral">
                 <BottomBar />

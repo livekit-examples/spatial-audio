@@ -9,7 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@livekit/components-react": "^0.3.0",
+    "@livekit/components-core": "^0.3",
+    "@livekit/components-react": "^0.4",
     "@next/font": "13.1.5",
     "@pixi/react": "^7.0.0-alpha.2",
     "@pixi/tilemap": "^3.2.2",

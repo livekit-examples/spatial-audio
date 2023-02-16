@@ -4,9 +4,11 @@ import React, { useContext } from "react";
 import {
   useLocalParticipant,
   useRemoteParticipants,
+  useTracks,
 } from "@livekit/components-react";
-import { useTracksByName } from "@/util/useTracksByName";
 import { useUnmount } from "react-use";
+import { useTracksByName } from "@/util/useAudioTracksByName";
+import { useWebAudioContext } from "@/providers/audio/webAudio";
 
 type Data = {
   playJukeBox: () => Promise<void>;
@@ -26,8 +28,8 @@ export const JukeBoxProvider = ({ children }: Props) => {
   const { localParticipant } = useLocalParticipant();
   const remoteParticipants = useRemoteParticipants();
   const existingJukeBoxTracks = useTracksByName("jukebox");
+  const audioContext = useWebAudioContext();
 
-  const audioContext = useRef(new AudioContext());
   const audioElContainer = useRef<HTMLDivElement | null>(null);
   const audioEl = useRef<HTMLAudioElement | null>(null);
   const source = useRef<MediaElementAudioSourceNode | null>(null);
@@ -47,28 +49,18 @@ export const JukeBoxProvider = ({ children }: Props) => {
 
     cleanup.current();
 
-    audioEl.current = document.createElement("audio");
-    audioEl.current.autoplay = true;
-    audioEl.current.muted = false;
-    audioEl.current.loop = true;
-    audioEl.current.src = "/disco.mp3";
+    audioEl.current = new Audio("/disco.mp3");
+    audioEl.current.setAttribute("muted", "false");
+    audioEl.current.setAttribute("loop", "true");
+    audioEl.current.setAttribute("autoplay", "true");
     audioElContainer.current.appendChild(audioEl.current);
-
-    audioEl.current.onplay = () => {
-      if (!audioEl.current) return;
-      console.log("NEIL onplay", audioEl.current);
-      // console.log("NEIL onplay", audioEl.current);
-      // source.current = audioContext.current.createMediaElementSource(
-      //   audioEl.current
-      // );
-
-      // sink.current = audioContext.current.createMediaStreamDestination();
-      // source.current.connect(sink.current);
-      // localParticipant.publishTrack(sink.current.stream.getAudioTracks()[0], {
-      //   name: "jukebox",
-      // });
-    };
-  }, [localParticipant]);
+    source.current = audioContext.createMediaElementSource(audioEl.current);
+    sink.current = audioContext.createMediaStreamDestination();
+    source.current.connect(sink.current);
+    localParticipant.publishTrack(sink.current.stream.getAudioTracks()[0], {
+      name: "jukebox",
+    });
+  }, [audioContext, localParticipant]);
 
   useEffect(() => {
     console.log("NEIL existingJukeBoxTracks", existingJukeBoxTracks);
@@ -79,7 +71,6 @@ export const JukeBoxProvider = ({ children }: Props) => {
   return (
     <JukeBoxContext.Provider value={{ playJukeBox }}>
       {children}
-      <audio src="/disco.mp3" autoPlay loop />
       <div ref={audioElContainer} />
     </JukeBoxContext.Provider>
   );

@@ -1,22 +1,25 @@
-"use-client";
+"use client";
 
 import { Player } from "@/model/Player";
+import { Vector2 } from "@/model/Vector2";
 import { useMobile } from "@/util/useMobile";
 import {
   useMediaTrack,
   useRemoteParticipants,
 } from "@livekit/components-react";
 import {
+  Participant,
   RemoteAudioTrack,
   RemoteParticipant,
   RemoteTrackPublication,
   Track,
+  TrackPublication,
 } from "livekit-client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useWebAudioContext } from "../providers/audio/webAudio";
 
 type RemoteParticipantPlaybackSubscriptionProps = {
-  participant: RemoteParticipant;
+  participant: Participant;
   position: { x: number; y: number };
   myPosition: { x: number; y: number };
 };
@@ -77,18 +80,18 @@ function RemoteParticipantPlaybackAudio({
   useEffect(() => {
     // for mobile we use the setVolume method and use a simple linear falloff
     if (mobile) {
-      const distance = Math.sqrt(
-        relativePosition.x ** 2 + relativePosition.y ** 2
-      );
-      if (distance < 50) {
-        participant.setVolume(1);
-      } else {
-        if (distance > 250) {
-          participant.setVolume(0);
-          return;
-        }
-        participant.setVolume(1 - (distance - 50) / 200);
-      }
+      // const distance = Math.sqrt(
+      //   relativePosition.x ** 2 + relativePosition.y ** 2
+      // );
+      // if (distance < 50) {
+      //   participant.setVolume(1);
+      // } else {
+      //   if (distance > 250) {
+      //     participant.setVolume(0);
+      //     return;
+      //   }
+      //   participant.setVolume(1 - (distance - 50) / 200);
+      // }
     } else {
       panner.positionX.setTargetAtTime(relativePosition.x, 0, 0.02);
       panner.positionZ.setTargetAtTime(relativePosition.y, 0, 0.02);
@@ -112,19 +115,19 @@ function RemoteParticipantPlaybackAudio({
   );
 }
 
-type RemoteParticipantPlaybackProps = {
+type ParticipantPlaybackProps = {
   maxHearableDistance: number;
-  participant: RemoteParticipant;
+  participant: Participant;
   myPosition: { x: number; y: number };
   position: { x: number; y: number };
 };
 
-function RemoteParticipantPlayback({
+function ParticipantPlayback({
   maxHearableDistance,
   participant,
   myPosition,
   position,
-}: RemoteParticipantPlaybackProps) {
+}: ParticipantPlaybackProps) {
   const distance = useMemo(() => {
     const dx = myPosition.x - position.x;
     const dy = myPosition.y - position.y;
@@ -153,39 +156,35 @@ function RemoteParticipantPlayback({
   );
 }
 
+export type TrackPosition = {
+  participant: Participant;
+  trackName: string;
+  position: Vector2;
+};
+
 type PlaybackProviderProps = {
+  trackPositions: TrackPosition[];
+  myPosition: Vector2;
   maxHearableDistance: number;
-  remotePlayers: Player[];
-  myPlayer: Player;
 };
 
 export function SpatialAudioController({
+  trackPositions,
+  myPosition,
   maxHearableDistance,
-  remotePlayers,
-  myPlayer,
 }: PlaybackProviderProps) {
-  const remoteParticipants = useRemoteParticipants({});
-
-  const remoteParticipantLookup = useMemo(() => {
-    const lookup = new Map<string, RemoteParticipant>();
-    remoteParticipants.forEach((rp) => {
-      lookup.set(rp.identity, rp as RemoteParticipant);
-    });
-    return lookup;
-  }, [remoteParticipants]);
-
+  const audioContext = useWebAudioContext();
+  if (!audioContext) return null;
   return (
     <>
-      {remotePlayers.map((player) => {
-        const rp = remoteParticipantLookup.get(player.username);
-        if (!rp) return null;
+      {trackPositions.map((tp) => {
         return (
-          <RemoteParticipantPlayback
+          <ParticipantPlayback
             maxHearableDistance={maxHearableDistance}
-            key={player.username}
-            participant={rp as RemoteParticipant}
-            position={player.position}
-            myPosition={myPlayer.position}
+            key={`${tp.participant.identity}_${tp.trackName}`}
+            participant={tp.participant}
+            position={tp.position}
+            myPosition={myPosition}
           />
         );
       })}
