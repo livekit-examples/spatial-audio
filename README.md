@@ -1,8 +1,6 @@
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Flivekit-examples%2Fspatial-audio&env=LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_WS_URL&envDescription=Get%20these%20from%20your%20cloud%20livekit%20project.&envLink=https%3A%2F%2Fcloud.livekit.io&project-name=my-spatial-audio-app)
 
-
 ![Sample Gif](https://user-images.githubusercontent.com/8453967/221318613-861215da-1d71-492e-979f-dc7f18cb5c7f.gif)
-
 
 This is a demo of spatial audio using LiveKit. Users join a little 2D world, and hear other users' audio in stereo, based on their position and distance relative to you.
 
@@ -40,4 +38,13 @@ You can test it by opening <http://localhost:3000> in a browser.
 
 ## Deploying for production
 
-This project is a Next.js app. Refer to the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for production deployment.
+This demo is a Next.js app. Refer to the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for instructions on how to deploy for a production environment.
+
+## Asset credits
+
+This demo uses the following assets:
+
+- [Field of Green](https://guttykreum.itch.io/field-of-green) and boombox sprite by [GuttyKreum](https://twitter.com/GuttyKreum)
+- [Dino Characters](https://arks.itch.io/dino-characters) by [Arks](https://arks.digital/)
+
+They're both wonderful artists, check out their work!
