@@ -48,21 +48,26 @@ export const JukeBoxProvider = ({ children }: Props) => {
     cleanup.current();
 
     audioEl.current = document.createElement("audio");
-    audioEl.current.src = "/disco.mp3";
     audioEl.current.autoplay = true;
-    audioEl.current.muted = true;
+    audioEl.current.muted = false;
+    audioEl.current.loop = true;
+    audioEl.current.src = "/disco.mp3";
     audioElContainer.current.appendChild(audioEl.current);
 
-    source.current = audioContext.current.createMediaElementSource(
-      audioEl.current
-    );
+    audioEl.current.onplay = () => {
+      if (!audioEl.current) return;
+      console.log("NEIL onplay", audioEl.current);
+      // console.log("NEIL onplay", audioEl.current);
+      // source.current = audioContext.current.createMediaElementSource(
+      //   audioEl.current
+      // );
 
-    sink.current = audioContext.current.createMediaStreamDestination();
-    source.current.connect(sink.current);
-    audioEl.current.play();
-    localParticipant.publishTrack(sink.current.stream.getAudioTracks()[0], {
-      name: "jukebox",
-    });
+      // sink.current = audioContext.current.createMediaStreamDestination();
+      // source.current.connect(sink.current);
+      // localParticipant.publishTrack(sink.current.stream.getAudioTracks()[0], {
+      //   name: "jukebox",
+      // });
+    };
   }, [localParticipant]);
 
   useEffect(() => {
@@ -74,6 +79,7 @@ export const JukeBoxProvider = ({ children }: Props) => {
   return (
     <JukeBoxContext.Provider value={{ playJukeBox }}>
       {children}
+      <audio src="/disco.mp3" autoPlay loop />
       <div ref={audioElContainer} />
     </JukeBoxContext.Provider>
   );
