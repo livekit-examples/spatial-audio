@@ -142,13 +142,9 @@ function ParticipantPlayback({
     [distance, maxHearableDistance]
   );
 
-  const { publication } = useMediaTrack(Track.Source.Microphone, {
-    participant,
-  });
-
   return (
     <div>
-      {hearable && publication instanceof RemoteTrackPublication && (
+      {hearable && trackPublication instanceof RemoteTrackPublication && (
         <RemoteParticipantPlaybackAudio
           participant={participant}
           trackPublication={trackPublication}
