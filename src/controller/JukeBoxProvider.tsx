@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import React, { useContext } from "react";
 import {
+  TrackSource,
   useLocalParticipant,
   useMediaTrack,
   useRemoteParticipants,
@@ -75,6 +76,7 @@ export const JukeBoxProvider = ({ children }: Props) => {
     source.current.connect(sink.current);
     localParticipant.publishTrack(sink.current.stream.getAudioTracks()[0], {
       name: "jukebox",
+      source: TrackSource.Microphone,
     });
   }, [audioContext, localParticipant, stopJukeBox]);
 

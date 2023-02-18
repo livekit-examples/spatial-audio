@@ -28,17 +28,7 @@ function RemoteParticipantPlaybackAudio({
 }: RemoteParticipantPlaybackSubscriptionProps) {
   const mobile = useMobile();
   const audioEl = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    console.log(
-      "NEIL - RemoteParticipantPlaybackAudio - useEffect",
-      participant.identity,
-      position
-    );
-  }, [participant.identity, position]);
-
   const audioContext = useWebAudioContext();
-
   const panner = useMemo(() => audioContext.createPanner(), [audioContext]);
   const [relativePosition, setRelativePosition] = useState<{
     x: number;
@@ -73,6 +63,7 @@ function RemoteParticipantPlaybackAudio({
     panner.refDistance = 100;
     panner.maxDistance = 500;
     panner.rolloffFactor = 2;
+    trackPublication.track.attach(audioEl.current!);
     trackPublication.track.setWebAudioPlugins([panner]);
   }, [panner, mobile, trackPublication.track]);
 
@@ -144,7 +135,7 @@ function ParticipantPlayback({
 
   return (
     <div>
-      {hearable && trackPublication instanceof RemoteTrackPublication && (
+      {hearable && (
         <RemoteParticipantPlaybackAudio
           participant={participant}
           trackPublication={trackPublication}
