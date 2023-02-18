@@ -4,8 +4,6 @@ import { MicrophoneSelector } from "./MicrophoneSelector";
 import { PoweredByLiveKit } from "./PoweredByLiveKit";
 
 export function BottomBar() {
-  // LUKAS check this out
-  const tracks = useTracks([TrackSource.Microphone]);
   return (
     <div className="flex w-full h-full justify-between">
       <div className="flex h-full">

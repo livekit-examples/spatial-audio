@@ -7,7 +7,7 @@ import {
 import { ParticipantEvent, TrackPublication } from "livekit-client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-type TrackWithIdentity = {
+export type TrackWithIdentity = {
   identity: string;
   track: TrackPublication;
 };

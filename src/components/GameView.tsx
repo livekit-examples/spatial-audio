@@ -1,13 +1,10 @@
 import { NetcodeController } from "@/controller/NetcodeController";
 import {
-  TrackSource,
   useConnectionState,
   useIsSpeaking,
   useLocalParticipant,
-  useMediaTrack,
   useParticipantInfo,
   useSpeakingParticipants,
-  useTracks,
 } from "@livekit/components-react";
 import { Container } from "@pixi/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -17,15 +14,8 @@ import { InputController } from "@/controller/InputController";
 import { useGameState } from "@/model/GameState";
 import { MyCharacterController } from "@/controller/MyCharacterController";
 import { MyPlayerSpawnController } from "@/controller/MyPlayerSpawnController";
-import {
-  ConnectionState,
-  LocalTrackPublication,
-  RoomEvent,
-} from "livekit-client";
-import {
-  SpatialAudioController,
-  TrackPosition,
-} from "@/controller/SpatialAudioController";
+import { ConnectionState } from "livekit-client";
+import { SpatialAudioController } from "@/controller/SpatialAudioController";
 import { RemotePlayersController } from "@/controller/RemotePlayersController";
 import { WorldBoundaryController } from "@/controller/WorldBoundaryController";
 import { World } from "./World";
@@ -33,8 +23,6 @@ import { Camera } from "./Camera";
 import { EarshotRadius } from "./EarshotRadius";
 import { AnimationsProvider } from "@/providers/animations";
 import { Shadows } from "./Shadows";
-import { CharacterEncoding } from "crypto";
-import { CharacterName } from "./CharacterSelector";
 import { DPad } from "./DPad";
 import { Inputs } from "@/model/Inputs";
 import { useMobile } from "@/util/useMobile";
@@ -42,7 +30,7 @@ import { Stage } from "./Stage";
 import { JukeBox } from "./JukeBox";
 import { JukeBoxModal } from "./JukeBoxModal";
 import { JukeBoxProvider } from "@/controller/JukeBoxProvider";
-import { TrackParticipantPair } from "@livekit/components-core";
+import { useTrackPositions } from "@/controller/useTrackPositions";
 
 export function GameView() {
   const { ref, width = 1, height = 1 } = useResizeObserver<HTMLDivElement>();
@@ -76,10 +64,6 @@ export function GameView() {
     direction: { x: 0, y: 0 },
   });
 
-  const microphoneTrackParticipantPairs = useTracks([TrackSource.Microphone], {
-    updateOnlyOn: [RoomEvent.TrackPublished, RoomEvent.TrackUnpublished],
-  });
-
   const speakingLookup = useMemo(() => {
     const lookup = new Set<string>();
     for (const p of speakingParticipants) {
@@ -111,23 +95,7 @@ export function GameView() {
     );
   }, [jukeBoxPosition.x, jukeBoxPosition.y, myPlayer]);
 
-  const trackPositions: TrackPosition[] = useMemo(() => {
-    // find all of the microphone tracks
-    const microphoneTrackLookup = new Map<string, TrackParticipantPair>();
-    microphoneTrackParticipantPairs.forEach((tpp) => {
-      microphoneTrackLookup.set(tpp.participant.identity, tpp);
-    });
-
-    return remotePlayers
-      .filter((p) => microphoneTrackLookup.has(p.username))
-      .map((p) => {
-        return {
-          trackName: microphoneTrackLookup.get(p.username)!.track.trackName,
-          participant: microphoneTrackLookup.get(p.username)!.participant,
-          position: p.position,
-        };
-      });
-  }, [microphoneTrackParticipantPairs, remotePlayers]);
+  const trackPositions = useTrackPositions({ remotePlayers, jukeBoxPosition });
 
   if (connectionState !== ConnectionState.Connected) {
     return null;

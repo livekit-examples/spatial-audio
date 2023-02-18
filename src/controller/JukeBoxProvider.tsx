@@ -1,20 +1,27 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import React, { useContext } from "react";
 import {
   useLocalParticipant,
+  useMediaTrack,
   useRemoteParticipants,
   useTracks,
 } from "@livekit/components-react";
 import { useUnmount } from "react-use";
-import { useTracksByName } from "@/util/useAudioTracksByName";
+import {
+  TrackWithIdentity,
+  useTracksByName,
+} from "@/util/useAudioTracksByName";
 import { useWebAudioContext } from "@/providers/audio/webAudio";
+import { LocalTrack, LocalTrackPublication } from "livekit-client";
 
 type Data = {
+  existingJukeBoxTracks: TrackWithIdentity[];
   playJukeBox: () => Promise<void>;
 };
 
 const defaultData: Data = {
+  existingJukeBoxTracks: [],
   playJukeBox: () => Promise.resolve(),
 };
 
@@ -44,10 +51,19 @@ export const JukeBoxProvider = ({ children }: Props) => {
     }
   });
 
+  const stopJukeBox = useCallback(async () => {
+    cleanup.current();
+    const myJukeBoxTracks = existingJukeBoxTracks
+      .filter((t) => t.track instanceof LocalTrackPublication && t.track.track)
+      .map((t) => t.track.track as LocalTrack);
+    myJukeBoxTracks.forEach((t) => localParticipant.unpublishTrack(t));
+  }, [existingJukeBoxTracks, localParticipant]);
+
   const playJukeBox = useCallback(async () => {
     if (!audioElContainer.current) return;
 
-    cleanup.current();
+    // Stop any existing jukebox
+    await stopJukeBox();
 
     audioEl.current = new Audio("/disco.mp3");
     audioEl.current.setAttribute("muted", "false");
@@ -60,7 +76,7 @@ export const JukeBoxProvider = ({ children }: Props) => {
     localParticipant.publishTrack(sink.current.stream.getAudioTracks()[0], {
       name: "jukebox",
     });
-  }, [audioContext, localParticipant]);
+  }, [audioContext, localParticipant, stopJukeBox]);
 
   useEffect(() => {
     console.log("NEIL existingJukeBoxTracks", existingJukeBoxTracks);
@@ -69,7 +85,7 @@ export const JukeBoxProvider = ({ children }: Props) => {
   useUnmount(cleanup.current);
 
   return (
-    <JukeBoxContext.Provider value={{ playJukeBox }}>
+    <JukeBoxContext.Provider value={{ existingJukeBoxTracks, playJukeBox }}>
       {children}
       <div ref={audioElContainer} />
     </JukeBoxContext.Provider>

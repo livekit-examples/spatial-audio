@@ -1,16 +1,11 @@
 "use client";
 
-import { Player } from "@/model/Player";
 import { Vector2 } from "@/model/Vector2";
 import { useMobile } from "@/util/useMobile";
-import {
-  useMediaTrack,
-  useRemoteParticipants,
-} from "@livekit/components-react";
+import { useMediaTrack, useMediaTrackByName } from "@livekit/components-react";
 import {
   Participant,
   RemoteAudioTrack,
-  RemoteParticipant,
   RemoteTrackPublication,
   Track,
   TrackPublication,
@@ -20,6 +15,7 @@ import { useWebAudioContext } from "../providers/audio/webAudio";
 
 type RemoteParticipantPlaybackSubscriptionProps = {
   participant: Participant;
+  trackPublication: TrackPublication;
   position: { x: number; y: number };
   myPosition: { x: number; y: number };
 };
@@ -32,7 +28,15 @@ function RemoteParticipantPlaybackAudio({
   const mobile = useMobile();
   const audioEl = useRef<HTMLAudioElement | null>(null);
 
-  const { track, publication } = useMediaTrack(Track.Source.Microphone, {
+  useEffect(() => {
+    console.log(
+      "NEIL - RemoteParticipantPlaybackAudio - useEffect",
+      participant.identity,
+      position
+    );
+  }, [participant.identity, position]);
+
+  const { track, publication } = useMediaTrackByName(Track.Source.Microphone, {
     participant,
     element: audioEl,
   });
@@ -118,6 +122,7 @@ function RemoteParticipantPlaybackAudio({
 type ParticipantPlaybackProps = {
   maxHearableDistance: number;
   participant: Participant;
+  trackPublication: TrackPublication;
   myPosition: { x: number; y: number };
   position: { x: number; y: number };
 };
@@ -125,6 +130,7 @@ type ParticipantPlaybackProps = {
 function ParticipantPlayback({
   maxHearableDistance,
   participant,
+  trackPublication,
   myPosition,
   position,
 }: ParticipantPlaybackProps) {
@@ -148,6 +154,7 @@ function ParticipantPlayback({
       {hearable && publication instanceof RemoteTrackPublication && (
         <RemoteParticipantPlaybackAudio
           participant={participant}
+          trackPublication={trackPublication}
           position={position}
           myPosition={myPosition}
         />
@@ -158,7 +165,7 @@ function ParticipantPlayback({
 
 export type TrackPosition = {
   participant: Participant;
-  trackName: string;
+  trackPublication: TrackPublication;
   position: Vector2;
 };
 
@@ -181,8 +188,9 @@ export function SpatialAudioController({
         return (
           <ParticipantPlayback
             maxHearableDistance={maxHearableDistance}
-            key={`${tp.participant.identity}_${tp.trackName}`}
+            key={`${tp.participant.identity}_${tp.trackPublication.trackSid}`}
             participant={tp.participant}
+            trackPublication={tp.trackPublication}
             position={tp.position}
             myPosition={myPosition}
           />

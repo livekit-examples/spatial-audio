@@ -2,7 +2,6 @@
 
 import { WebAudioContext } from "@/providers/audio/webAudio";
 import { BottomBar } from "@/components/BottomBar";
-import { GameView } from "@/components/GameView";
 import { RoomInfo } from "@/components/RoomInfo";
 import { UsernameInput } from "@/components/UsernameInput";
 import {
@@ -17,6 +16,7 @@ import {
   CharacterSelector,
 } from "@/components/CharacterSelector";
 import { useMobile } from "@/util/useMobile";
+import { GameView } from "@/components/GameView";
 
 type Props = {
   params: { room_name: string };
@@ -118,7 +118,9 @@ export default function Page({ params: { room_name } }: Props) {
               } w-full h-full`}
             >
               <div className="grow flex">
-                <div className="grow">{/* <GameView /> */}</div>
+                <div className="grow">
+                  <GameView />
+                </div>
               </div>
               <div className="bg-neutral">
                 <BottomBar />
