@@ -22,6 +22,7 @@ type RemoteParticipantPlaybackSubscriptionProps = {
 
 function RemoteParticipantPlaybackAudio({
   participant,
+  trackPublication,
   position,
   myPosition,
 }: RemoteParticipantPlaybackSubscriptionProps) {
@@ -36,10 +37,6 @@ function RemoteParticipantPlaybackAudio({
     );
   }, [participant.identity, position]);
 
-  const { track, publication } = useMediaTrackByName(Track.Source.Microphone, {
-    participant,
-    element: audioEl,
-  });
   const audioContext = useWebAudioContext();
 
   const panner = useMemo(() => audioContext.createPanner(), [audioContext]);
@@ -63,7 +60,7 @@ function RemoteParticipantPlaybackAudio({
 
   // set up panner node for desktop
   useEffect(() => {
-    if (!(track instanceof RemoteAudioTrack) || mobile) {
+    if (!(trackPublication.track instanceof RemoteAudioTrack) || mobile) {
       return;
     }
     panner.coneOuterAngle = 360;
@@ -76,8 +73,8 @@ function RemoteParticipantPlaybackAudio({
     panner.refDistance = 100;
     panner.maxDistance = 500;
     panner.rolloffFactor = 2;
-    track.setWebAudioPlugins([panner]);
-  }, [track, panner, mobile]);
+    trackPublication.track.setWebAudioPlugins([panner]);
+  }, [panner, mobile, trackPublication.track]);
 
   // On mobile we use a gain node because panner nodes have no effect
   // https://developer.apple.com/forums/thread/696034
@@ -103,14 +100,14 @@ function RemoteParticipantPlaybackAudio({
   }, [mobile, relativePosition.x, relativePosition.y, panner, participant]);
 
   useEffect(() => {
-    if (!(publication instanceof RemoteTrackPublication)) {
+    if (!(trackPublication instanceof RemoteTrackPublication)) {
       return;
     }
-    publication?.setSubscribed(true);
+    trackPublication?.setSubscribed(true);
     return () => {
-      publication?.setSubscribed(false);
+      trackPublication?.setSubscribed(false);
     };
-  }, [publication]);
+  }, [trackPublication]);
 
   return (
     <>

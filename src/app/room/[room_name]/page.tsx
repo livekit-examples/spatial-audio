@@ -107,7 +107,7 @@ export default function Page({ params: { room_name } }: Props) {
         token={connectionDetails.token}
         serverUrl={connectionDetails.ws_url}
         connect={true}
-        connectOptions={{ autoSubscribe: false }}
+        connectOptions={{ autoSubscribe: true }}
         options={{ expWebAudioMix: { audioContext } }}
       >
         <WebAudioContext.Provider value={audioContext}>

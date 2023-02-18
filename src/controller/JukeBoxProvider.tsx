@@ -78,10 +78,6 @@ export const JukeBoxProvider = ({ children }: Props) => {
     });
   }, [audioContext, localParticipant, stopJukeBox]);
 
-  useEffect(() => {
-    console.log("NEIL existingJukeBoxTracks", existingJukeBoxTracks);
-  }, [existingJukeBoxTracks]);
-
   useUnmount(cleanup.current);
 
   return (
