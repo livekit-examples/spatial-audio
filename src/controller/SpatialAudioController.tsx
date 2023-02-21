@@ -47,7 +47,6 @@ function PublicationRenderer({
       trackPublication.track
     ) {
       const mediaStreamTrack = trackPublication.track.mediaStreamTrack;
-      console.log("NEIL", mediaStreamTrack);
       return new MediaStream([mediaStreamTrack]);
     }
 
@@ -75,13 +74,6 @@ function PublicationRenderer({
   // setup panner node for desktop
   useEffect(() => {
     cleanupWebAudio();
-
-    console.log(
-      "NEIL",
-      trackPublication,
-      audioEl.current,
-      trackPublication.track
-    );
 
     if (!audioEl.current || !trackPublication.track || !mediaStream)
       return cleanupWebAudio;

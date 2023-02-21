@@ -27,6 +27,7 @@ export const JukeBoxModal = () => {
       )}
       {!someoneElsePlayingJukeBox && (
         <button
+          className="btn select-none"
           onClick={() => {
             if (amIPlayingJukeBox) {
               stopJukeBox();
