@@ -4,9 +4,7 @@ import React, { useContext } from "react";
 import {
   TrackSource,
   useLocalParticipant,
-  useMediaTrack,
   useRemoteParticipants,
-  useTracks,
 } from "@livekit/components-react";
 import { useUnmount } from "react-use";
 import {
@@ -14,16 +12,24 @@ import {
   useTracksByName,
 } from "@/util/useAudioTracksByName";
 import { useWebAudioContext } from "@/providers/audio/webAudio";
-import { LocalTrack, LocalTrackPublication } from "livekit-client";
+import { LocalTrack, LocalTrackPublication, Participant } from "livekit-client";
 
 type Data = {
-  existingJukeBoxTracks: TrackWithIdentity[];
+  jukeBoxTrack: TrackWithIdentity | null;
+  amIPlayingJukeBox: boolean;
+  jukeBoxParticipant: string | null;
+  someoneElsePlayingJukeBox: boolean;
   playJukeBox: () => Promise<void>;
+  stopJukeBox: () => Promise<void>;
 };
 
 const defaultData: Data = {
-  existingJukeBoxTracks: [],
+  jukeBoxTrack: null,
+  jukeBoxParticipant: null,
+  amIPlayingJukeBox: false,
+  someoneElsePlayingJukeBox: false,
   playJukeBox: () => Promise.resolve(),
+  stopJukeBox: () => Promise.resolve(),
 };
 
 type Props = {
@@ -42,6 +48,23 @@ export const JukeBoxProvider = ({ children }: Props) => {
   const audioEl = useRef<HTMLAudioElement | null>(null);
   const source = useRef<MediaElementAudioSourceNode | null>(null);
   const sink = useRef<MediaStreamAudioDestinationNode | null>(null);
+
+  const jukeBoxTrack = useMemo(() => {
+    return existingJukeBoxTracks[0] || null;
+  }, [existingJukeBoxTracks]);
+
+  const jukeBoxParticipant = useMemo(
+    () => jukeBoxTrack?.identity || null,
+    [jukeBoxTrack?.identity]
+  );
+
+  const amIPlayingJukeBox = useMemo(
+    () =>
+      existingJukeBoxTracks.findIndex(
+        (t) => t.identity === localParticipant.identity
+      ) > -1,
+    [existingJukeBoxTracks, localParticipant.identity]
+  );
 
   const cleanup = useRef(() => {
     if (sink.current) sink.current.disconnect();
@@ -83,7 +106,17 @@ export const JukeBoxProvider = ({ children }: Props) => {
   useUnmount(cleanup.current);
 
   return (
-    <JukeBoxContext.Provider value={{ existingJukeBoxTracks, playJukeBox }}>
+    <JukeBoxContext.Provider
+      value={{
+        jukeBoxTrack,
+        jukeBoxParticipant,
+        amIPlayingJukeBox,
+        someoneElsePlayingJukeBox:
+          existingJukeBoxTracks.length > 0 && !amIPlayingJukeBox,
+        playJukeBox,
+        stopJukeBox,
+      }}
+    >
       {children}
       <div ref={audioElContainer} />
     </JukeBoxContext.Provider>
