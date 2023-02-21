@@ -1,8 +1,8 @@
 import { useJukeBox } from "@/controller/JukeBoxProvider";
 import { Vector2 } from "@/model/Vector2";
 import { Container, Graphics, Sprite, Text } from "@pixi/react";
-import { TextStyle } from "pixi.js";
-import { useEffect } from "react";
+import { SCALE_MODES, TextStyle, Texture } from "pixi.js";
+import { useEffect, useMemo } from "react";
 
 type Props = {
   position: Vector2;
@@ -15,6 +15,12 @@ export const JukeBox = ({ position, backgroundZIndex }: Props) => {
   useEffect(() => {
     console.log("NEIL", jukeBoxParticipant);
   }, [jukeBoxParticipant]);
+
+  const jukeboxTexture = useMemo(() => {
+    return Texture.from("/world/boombox.png", {
+      scaleMode: SCALE_MODES.NEAREST,
+    });
+  }, []);
 
   return (
     //@ts-ignore
@@ -35,6 +41,7 @@ export const JukeBox = ({ position, backgroundZIndex }: Props) => {
           }
         />
       )}
+      <Sprite scale={2} anchor={[0.5, 0.5]} texture={jukeboxTexture} />
       <Graphics
         x={0}
         y={0}
@@ -42,7 +49,7 @@ export const JukeBox = ({ position, backgroundZIndex }: Props) => {
         draw={(g) => {
           g.clear();
           g.beginFill(0x000000, 0.2);
-          g.drawCircle(0, 0, 30);
+          g.drawEllipse(0, 14, 40, 15);
           g.endFill();
         }}
       />
