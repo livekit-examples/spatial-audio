@@ -19,15 +19,19 @@ export const JukeBoxModal = () => {
   } = useJukeBox();
 
   return (
-    <div className="flex flex-col items-center p-4 bg-white rounded-md">
-      <div>Disco JukeBox</div>
-      <div>It&apos;s got one mode, and that&apos;s disco babyyyy</div>
+    <div className="flex flex-col items-center p-4 bg-neutral rounded-md">
+      <div className="text-primary font-bold text-2xl mb-1">
+        Spatial Speaker
+      </div>
+      <div className="text-secondary italic mb-2 text-sm">
+        (Play some spatially groovy tunes over WebRTC)
+      </div>
       {!amIPlayingJukeBox && jukeBoxParticipant && (
         <>{jukeBoxParticipant} is playing the jukebox</>
       )}
       {!someoneElsePlayingJukeBox && (
         <button
-          className="btn select-none"
+          className="btn btn-accent select-none"
           onClick={() => {
             if (amIPlayingJukeBox) {
               stopJukeBox();

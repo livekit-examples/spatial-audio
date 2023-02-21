@@ -1,20 +1,29 @@
 // adapted context bridge from https://pixijs.io/pixi-react/context-bridge/ for providing LiveKit room context to pixi components
 import { Stage as PixiStage } from "@pixi/react";
 import { RoomContext } from "@livekit/components-react";
+import { JukeBoxContext } from "@/controller/JukeBoxProvider";
 
 interface ContextBridgeProps extends React.PropsWithChildren {
   render: (tree: React.ReactElement) => React.ReactNode;
 }
 
 // the context bridge:
-const RoomContextBridge = ({ children, render }: ContextBridgeProps) => {
+const ContextBridge = ({ children, render }: ContextBridgeProps) => {
   return (
     <RoomContext.Consumer>
-      {(value) =>
-        render(
-          <RoomContext.Provider value={value}>{children}</RoomContext.Provider>
-        )
-      }
+      {(roomValue) => (
+        <JukeBoxContext.Consumer>
+          {(jukeBoxValue) =>
+            render(
+              <RoomContext.Provider value={roomValue}>
+                <JukeBoxContext.Provider value={jukeBoxValue}>
+                  {children}
+                </JukeBoxContext.Provider>
+              </RoomContext.Provider>
+            )
+          }
+        </JukeBoxContext.Consumer>
+      )}
     </RoomContext.Consumer>
   );
 };
@@ -22,10 +31,10 @@ const RoomContextBridge = ({ children, render }: ContextBridgeProps) => {
 // custom pixi stage with livekit room context
 export const Stage = ({ children, ...props }: PixiStage["props"]) => {
   return (
-    <RoomContextBridge
+    <ContextBridge
       render={(children) => <PixiStage {...props}>{children}</PixiStage>}
     >
       {children}
-    </RoomContextBridge>
+    </ContextBridge>
   );
 };

@@ -103,114 +103,114 @@ export function GameView() {
 
   return (
     <div ref={ref} className="relative h-full w-full bg-red-400">
-      {myPlayer && (
-        <SpatialAudioController
-          myPosition={myPlayer.position}
-          trackPositions={trackPositions}
-          maxHearableDistance={earshotRadius}
-        />
-      )}
-      {myPlayer && (
-        <NetcodeController
-          setNetworkAnimations={setNetworkAnimations}
-          setNetworkPositions={setNetworkPositions}
-          myPlayer={myPlayer}
-        />
-      )}
-      <RemotePlayersController
-        networkAnimations={networkAnimations}
-        networkPositions={networkPositions}
-        setRemotePlayers={setRemotePlayers}
-      />
-      <InputController mobileInputs={mobileInputs} setInputs={setInputs} />
-      <MyPlayerSpawnController
-        localCharacter={localCharacter}
-        myPlayer={myPlayer}
-        setMyPlayer={setMyPlayer}
-        localParticipant={localParticipant}
-      />
       <JukeBoxProvider>
+        {myPlayer && (
+          <SpatialAudioController
+            myPosition={myPlayer.position}
+            trackPositions={trackPositions}
+            maxHearableDistance={earshotRadius}
+          />
+        )}
+        {myPlayer && (
+          <NetcodeController
+            setNetworkAnimations={setNetworkAnimations}
+            setNetworkPositions={setNetworkPositions}
+            myPlayer={myPlayer}
+          />
+        )}
+        <RemotePlayersController
+          networkAnimations={networkAnimations}
+          networkPositions={networkPositions}
+          setRemotePlayers={setRemotePlayers}
+        />
+        <InputController mobileInputs={mobileInputs} setInputs={setInputs} />
+        <MyPlayerSpawnController
+          localCharacter={localCharacter}
+          myPlayer={myPlayer}
+          setMyPlayer={setMyPlayer}
+          localParticipant={localParticipant}
+        />
         {distanceFromJukeBox < 20 && (
           <div className="absolute w-screen h-screen flex justify-center items-center z-10">
-            <div className="shadow-md">
+            <div className="shadow-md mt-48">
               <JukeBoxModal />
             </div>
           </div>
         )}
-      </JukeBoxProvider>
-      {mobile && (
-        <div className="absolute bottom-20 left-5 w-[120px] h-[120px] z-10">
-          <DPad onInput={onMobileInput} />
-        </div>
-      )}
-      <Stage
-        className="absolute top-0 left-0 bottom-0 right-0"
-        raf={true}
-        renderOnComponentChange={false}
-        width={width}
-        height={height}
-        options={{ resolution: 2, backgroundColor: 0x509b66 }}
-      >
-        <AnimationsProvider>
-          <Camera targetPosition={myPlayer?.position || { x: 0, y: 0 }}>
-            {/* @ts-ignore */}
-            <Container anchor={[0.5, 0.5]} sortableChildren={true}>
-              <MyCharacterController
-                playerSpeed={playerSpeed}
-                inputs={inputs}
-                setMyPlayer={setMyPlayer}
-              />
-              {myPlayer && (
-                <WorldBoundaryController
-                  worldBoundaries={worldBoundaries}
-                  myPlayer={myPlayer}
+        {mobile && (
+          <div className="absolute bottom-20 left-5 w-[120px] h-[120px] z-10">
+            <DPad onInput={onMobileInput} />
+          </div>
+        )}
+        <Stage
+          className="absolute top-0 left-0 bottom-0 right-0"
+          raf={true}
+          renderOnComponentChange={false}
+          width={width}
+          height={height}
+          options={{ resolution: 2, backgroundColor: 0x509b66 }}
+        >
+          <AnimationsProvider>
+            <Camera targetPosition={myPlayer?.position || { x: 0, y: 0 }}>
+              {/* @ts-ignore */}
+              <Container anchor={[0.5, 0.5]} sortableChildren={true}>
+                <MyCharacterController
+                  playerSpeed={playerSpeed}
+                  inputs={inputs}
                   setMyPlayer={setMyPlayer}
                 />
-              )}
-              {myPlayer && (
-                <Character
-                  speaking={localSpeaking}
-                  username={myPlayer.username}
-                  x={myPlayer.position.x}
-                  y={myPlayer.position.y}
-                  character={myPlayer.character}
-                  animation={myPlayer.animation}
+                {myPlayer && (
+                  <WorldBoundaryController
+                    worldBoundaries={worldBoundaries}
+                    myPlayer={myPlayer}
+                    setMyPlayer={setMyPlayer}
+                  />
+                )}
+                {myPlayer && (
+                  <Character
+                    speaking={localSpeaking}
+                    username={myPlayer.username}
+                    x={myPlayer.position.x}
+                    y={myPlayer.position.y}
+                    character={myPlayer.character}
+                    animation={myPlayer.animation}
+                  />
+                )}
+                <JukeBox
+                  backgroundZIndex={backgroundZIndex}
+                  position={jukeBoxPosition}
                 />
-              )}
-              <JukeBox
-                backgroundZIndex={backgroundZIndex}
-                position={jukeBoxPosition}
-              />
-              <World
-                backgroundZIndex={backgroundZIndex}
-                worldBoundaries={worldBoundaries}
-              />
-              <Shadows
-                backgroundZIndex={backgroundZIndex}
-                myPlayer={myPlayer}
-                remotePlayers={remotePlayers}
-              />
-              {remotePlayers.map((player) => (
-                <Character
-                  speaking={speakingLookup.has(player.username)}
-                  username={player.username}
-                  key={player.username}
-                  x={player.position.x}
-                  y={player.position.y}
-                  character={player.character}
-                  animation={player.animation}
+                <World
+                  backgroundZIndex={backgroundZIndex}
+                  worldBoundaries={worldBoundaries}
                 />
-              ))}
-              <EarshotRadius
-                backgroundZIndex={backgroundZIndex}
-                render={true}
-                earshotRadius={earshotRadius}
-                myPlayerPosition={myPlayer?.position || { x: 0, y: 0 }}
-              />
-            </Container>
-          </Camera>
-        </AnimationsProvider>
-      </Stage>
+                <Shadows
+                  backgroundZIndex={backgroundZIndex}
+                  myPlayer={myPlayer}
+                  remotePlayers={remotePlayers}
+                />
+                {remotePlayers.map((player) => (
+                  <Character
+                    speaking={speakingLookup.has(player.username)}
+                    username={player.username}
+                    key={player.username}
+                    x={player.position.x}
+                    y={player.position.y}
+                    character={player.character}
+                    animation={player.animation}
+                  />
+                ))}
+                <EarshotRadius
+                  backgroundZIndex={backgroundZIndex}
+                  render={true}
+                  earshotRadius={earshotRadius}
+                  myPlayerPosition={myPlayer?.position || { x: 0, y: 0 }}
+                />
+              </Container>
+            </Camera>
+          </AnimationsProvider>
+        </Stage>
+      </JukeBoxProvider>
     </div>
   );
 }
