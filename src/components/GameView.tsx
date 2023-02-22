@@ -130,7 +130,7 @@ export function GameView() {
           setMyPlayer={setMyPlayer}
           localParticipant={localParticipant}
         />
-        {distanceFromJukeBox < 20 && (
+        {distanceFromJukeBox < 60 && (
           <div className="absolute w-screen h-screen flex justify-center items-center z-10">
             <div className="shadow-md mt-48">
               <JukeBoxModal />
