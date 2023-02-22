@@ -4,6 +4,7 @@ import { CharacterName } from "@/components/CharacterSelector";
 import { useApp } from "@pixi/react";
 import {
   BaseTexture,
+  Cache,
   Resource,
   SCALE_MODES,
   Spritesheet,
@@ -21,13 +22,20 @@ const atlasDataGenerator = (name: CharacterName) => {
       scale: "0.32",
     },
     animations: {
-      walk: ["4", "5", "6", "7", "8", "9"],
-      idle: ["0", "1", "2", "3"],
+      walk: [
+        `4_${name}`,
+        `5_${name}`,
+        `6_${name}`,
+        `7_${name}`,
+        `8_${name}`,
+        `9_${name}`,
+      ],
+      idle: [`0_${name}`, `1_${name}`, `2_${name}`, `3_${name}`],
     },
   };
   for (let row = 0; row < 1; row++) {
     for (let col = 0; col < 24; col++) {
-      (baseAtlas.frames as any)[`${row * 8 + col}`] = {
+      (baseAtlas.frames as any)[`${row * 8 + col}_${name}`] = {
         frame: {
           x: col * 24,
           y: row * 24,
@@ -118,6 +126,10 @@ export function AnimationsProvider({ children }: Props) {
 
   useEffect(() => {
     loadAnimations();
+
+    return () => {
+      Cache.reset();
+    };
   }, [loadAnimations]);
 
   return (
