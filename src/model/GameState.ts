@@ -18,7 +18,7 @@ export const useGameState = () => {
   const [cameraOffset, setCameraOffset] = useState<Vector2>({ x: 0, y: 0 });
   const [jukeBoxPosition, setJukeBoxPosition] = useState<Vector2>({
     x: 0,
-    y: 0,
+    y: -200,
   });
   const [jukeBoxState, setJukeBoxState] = useState<JukeBoxState>({
     type: "off",

@@ -41,7 +41,12 @@ export const JukeBox = ({ position, backgroundZIndex }: Props) => {
 
   return (
     //@ts-ignore
-    <Container sortableChildren={true} anchor={[0.5, 0.05]} position={position}>
+    <Container
+      zIndex={position.y}
+      sortableChildren={true}
+      anchor={[0.5, 0.05]}
+      position={position}
+    >
       {jukeBoxParticipant && (
         //@ts-ignore
         <Text
