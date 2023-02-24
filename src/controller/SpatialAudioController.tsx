@@ -33,6 +33,7 @@ function PublicationRenderer({
   const audioContext = useWebAudioContext();
   const sourceNode = useRef<MediaStreamAudioSourceNode | null>(null);
   const panner = useRef<PannerNode | null>(null);
+  const gain = useRef<GainNode | null>(null);
   const [relativePosition, setRelativePosition] = useState<{
     x: number;
     y: number;
@@ -56,7 +57,9 @@ function PublicationRenderer({
   const cleanupWebAudio = useCallback(() => {
     if (panner.current) panner.current.disconnect();
     if (sourceNode.current) sourceNode.current.disconnect();
+    if (gain.current) gain.current.disconnect();
 
+    gain.current = null;
     panner.current = null;
     sourceNode.current = null;
   }, []);
@@ -82,7 +85,11 @@ function PublicationRenderer({
 
     // if on mobile, the panner node has no effect
     if (mobile) {
-      audioEl.current.volume = 0;
+      gain.current = audioContext.createGain();
+      gain.current.gain.setValueAtTime(0, 0);
+      sourceNode.current
+        .connect(gain.current)
+        .connect(audioContext.destination);
     } else {
       panner.current = audioContext.createPanner();
       panner.current.coneOuterAngle = 360;
@@ -116,23 +123,25 @@ function PublicationRenderer({
   // On mobile we use volume because panner nodes have no effect
   // https://developer.apple.com/forums/thread/696034
   useEffect(() => {
-    if (!audioEl.current || !panner.current) return;
+    if (!audioEl.current) return;
 
-    // for mobile we use the setVolume method and use a simple linear falloff
+    // for mobile we use the gain node
     if (mobile) {
+      if (!gain.current) return;
       const distance = Math.sqrt(
         relativePosition.x ** 2 + relativePosition.y ** 2
       );
       if (distance < 50) {
-        audioEl.current.volume = 1;
+        gain.current.gain.setTargetAtTime(1, 0, 0.2);
       } else {
         if (distance > 250) {
-          audioEl.current.volume = 0;
+          gain.current.gain.setTargetAtTime(0, 0, 0.2);
           return;
         }
-        audioEl.current.volume = 1 - (distance - 50) / 200;
+        gain.current.gain.setTargetAtTime(1 - (distance - 50) / 200, 0, 0.2);
       }
     } else {
+      if (!panner.current) return;
       panner.current.positionX.setTargetAtTime(relativePosition.x, 0, 0.02);
       panner.current.positionZ.setTargetAtTime(relativePosition.y, 0, 0.02);
     }
