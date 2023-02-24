@@ -132,7 +132,7 @@ export function GameView() {
         />
         {distanceFromJukeBox < 60 && (
           <div className="absolute w-screen h-screen flex justify-center items-center z-10">
-            <div className="shadow-md mt-48">
+            <div className="shadow-md mb-[500px]">
               <JukeBoxModal />
             </div>
           </div>
