@@ -5,12 +5,18 @@ import { Player } from "@/model/Player";
 import { Vector2 } from "@/model/Vector2";
 import {
   useConnectionState,
-  useDataChannelMessages,
+  useLocalParticipant,
   useRemoteParticipants,
+  useRoomContext,
 } from "@livekit/components-react";
 // TODO we should re-export this type form components-react
 import type { BaseDataMessage } from "@livekit/components-core";
-import { ConnectionState, DataPacket_Kind } from "livekit-client";
+import {
+  ConnectionState,
+  DataPacket_Kind,
+  RemoteParticipant,
+  RoomEvent,
+} from "livekit-client";
 import React, {
   Dispatch,
   SetStateAction,
@@ -42,23 +48,47 @@ export function NetcodeController({
   setNetworkAnimations,
   setNetworkPositions,
 }: Props) {
-  const { message: positionMessage, send: positionSend } =
-    useDataChannelMessages<PositionMessage>("position");
-  const { message: animationMessage, send: animationSend } =
-    useDataChannelMessages<AnimationMessage>("animation");
-
+  // LiveKit state
+  const roomCtx = useRoomContext();
   const connectionState = useConnectionState();
   const remoteParticipants = useRemoteParticipants({});
+  const { localParticipant } = useLocalParticipant();
 
+  // Position and animation state
   const _playerPositions = useRef<Map<string, { x: number; y: number }>>(
     new Map()
   );
   const _animations = useRef<Map<string, AnimationState>>(new Map());
-
   const _myPosition = useRef<Vector2>(myPlayer.position);
   const _myAnimation = useRef<AnimationState>(myPlayer.animation);
+
   const positionSendLock = useRef(false);
   const animationSendLock = useRef(false);
+  const textEncoder = useRef(new TextEncoder());
+  const textDecoder = useRef(new TextDecoder());
+
+  const onDataChannel = useCallback(
+    (payload: Uint8Array, participant: RemoteParticipant | undefined) => {
+      if (!participant) return;
+      const data = JSON.parse(textDecoder.current.decode(payload));
+      if (data.channelId === "position") {
+        const { x, y } = data.payload;
+        _playerPositions.current.set(participant.identity, { x, y });
+      } else if (data.channelId === "animation") {
+        _animations.current.set(participant.identity, data.payload);
+      }
+    },
+    []
+  );
+
+  // Setup datachannel listener
+  useEffect(() => {
+    roomCtx.on(RoomEvent.DataReceived, onDataChannel);
+
+    return () => {
+      roomCtx.off(RoomEvent.DataReceived, onDataChannel);
+    };
+  }, [onDataChannel, roomCtx]);
 
   // Take myPosition and myAnimation out of react-land so we can send them reliable on a fixed interval
   useEffect(() => {
@@ -70,21 +100,30 @@ export function NetcodeController({
     if (positionSendLock.current) return;
     positionSendLock.current = true;
     try {
-      await positionSend(_myPosition.current, DataPacket_Kind.LOSSY);
+      const payload: Uint8Array = new TextEncoder().encode(
+        JSON.stringify({ payload: _myPosition.current, channelId: "position" })
+      );
+      await localParticipant.publishData(payload, DataPacket_Kind.LOSSY);
     } finally {
       positionSendLock.current = false;
     }
-  }, [positionSend]);
+  }, [localParticipant]);
 
   const sendMyAnimation = useCallback(async () => {
     if (animationSendLock.current) return;
     animationSendLock.current = true;
     try {
-      await animationSend(_myAnimation.current, DataPacket_Kind.LOSSY);
+      const payload: Uint8Array = new TextEncoder().encode(
+        JSON.stringify({
+          payload: _myAnimation.current,
+          channelId: "animation",
+        })
+      );
+      await localParticipant.publishData(payload, DataPacket_Kind.LOSSY);
     } finally {
       animationSendLock.current = false;
     }
-  }, [animationSend]);
+  }, [localParticipant]);
 
   const remoteParticipantLookup = useMemo(() => {
     return new Set(remoteParticipants.map((p) => p.identity));
@@ -105,24 +144,6 @@ export function NetcodeController({
       }
     }
   }, [remoteParticipantLookup]);
-
-  // Update positions from messages
-  useEffect(() => {
-    if (!positionMessage?.from?.identity || !positionMessage.payload) return;
-    _playerPositions.current.set(
-      positionMessage.from.identity,
-      positionMessage.payload
-    );
-  }, [positionMessage]);
-
-  // Update animations from messages
-  useEffect(() => {
-    if (!animationMessage?.from?.identity || !animationMessage.payload) return;
-    _animations.current.set(
-      animationMessage.from.identity,
-      animationMessage.payload
-    );
-  }, [animationMessage]);
 
   const setNetworkValues = useCallback(() => {
     setNetworkAnimations(new Map(_animations.current));

@@ -16,10 +16,6 @@ export const JukeBox = ({ position, backgroundZIndex }: Props) => {
   const [jukeboxY, setJukeboxY] = useState(0);
   const [scale, setScale] = useState(BASE_SCALE);
 
-  useEffect(() => {
-    console.log("NEIL", jukeBoxParticipant);
-  }, [jukeBoxParticipant]);
-
   const jukeboxTexture = useMemo(() => {
     return Texture.from("/world/boombox.png", {
       scaleMode: SCALE_MODES.NEAREST,
