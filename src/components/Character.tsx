@@ -1,8 +1,8 @@
 import { AnimationState } from "@/model/AnimationState";
 import { useAnimations } from "@/providers/animations";
 import { AnimatedSprite, Container, Text } from "@pixi/react";
-import { BaseTexture, Spritesheet, TextStyle, Texture } from "pixi.js";
-import { useEffect, useMemo, useState } from "react";
+import { TextStyle } from "pixi.js";
+import { useMemo } from "react";
 import { CharacterName } from "./CharacterSelector";
 
 type Props = {

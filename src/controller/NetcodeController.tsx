@@ -100,7 +100,7 @@ export function NetcodeController({
     if (positionSendLock.current) return;
     positionSendLock.current = true;
     try {
-      const payload: Uint8Array = new TextEncoder().encode(
+      const payload: Uint8Array = textEncoder.current.encode(
         JSON.stringify({ payload: _myPosition.current, channelId: "position" })
       );
       await localParticipant.publishData(payload, DataPacket_Kind.LOSSY);
@@ -113,7 +113,7 @@ export function NetcodeController({
     if (animationSendLock.current) return;
     animationSendLock.current = true;
     try {
-      const payload: Uint8Array = new TextEncoder().encode(
+      const payload: Uint8Array = textEncoder.current.encode(
         JSON.stringify({
           payload: _myAnimation.current,
           channelId: "animation",

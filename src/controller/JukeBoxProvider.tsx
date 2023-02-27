@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 
 import React, { useContext } from "react";
 import {
@@ -12,7 +12,7 @@ import {
   useTracksByName,
 } from "@/util/useAudioTracksByName";
 import { useWebAudioContext } from "@/providers/audio/webAudio";
-import { LocalTrack, LocalTrackPublication, Participant } from "livekit-client";
+import { LocalTrack, LocalTrackPublication } from "livekit-client";
 
 type Data = {
   jukeBoxTrack: TrackWithIdentity | null;

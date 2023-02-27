@@ -1,6 +1,5 @@
 import { Player } from "@/model/Player";
-import { Container, Graphics } from "@pixi/react";
-import { BLEND_MODES } from "pixi.js";
+import { Graphics } from "@pixi/react";
 
 type Props = {
   myPlayer: Player | null;

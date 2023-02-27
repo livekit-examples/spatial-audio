@@ -1,7 +1,5 @@
 import { WorldBoundaries } from "@/model/WorldBoundaries";
-import { Graphics } from "pixi.js";
-import { useCallback, useMemo } from "react";
-import { Graphics as GraphicsComponent, Sprite } from "@pixi/react";
+import { Sprite } from "@pixi/react";
 
 type Props = {
   worldBoundaries: WorldBoundaries;

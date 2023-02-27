@@ -1,5 +1,4 @@
 import DPadSvg from "@/components/icons/d-pad.svg";
-import { Vector2 } from "@/model/Vector2";
 import { TouchEvent, useCallback, useRef } from "react";
 
 type Props = {

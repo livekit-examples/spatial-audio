@@ -1,12 +1,5 @@
 import { useJukeBox } from "@/controller/JukeBoxProvider";
 import { useMobile } from "@/util/useMobile";
-import {
-  useLocalParticipant,
-  useRemoteParticipant,
-  useRemoteParticipants,
-  useTracks,
-} from "@livekit/components-react";
-import { LocalParticipant } from "livekit-client";
 import { useCallback, useEffect, useMemo } from "react";
 
 export const JukeBoxModal = () => {

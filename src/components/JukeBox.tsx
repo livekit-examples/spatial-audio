@@ -2,7 +2,7 @@ import { useJukeBox } from "@/controller/JukeBoxProvider";
 import { Vector2 } from "@/model/Vector2";
 import { Container, Graphics, Sprite, Text, useTick } from "@pixi/react";
 import { SCALE_MODES, TextStyle, Texture } from "pixi.js";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 type Props = {
   position: Vector2;

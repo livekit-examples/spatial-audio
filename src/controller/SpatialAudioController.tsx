@@ -2,7 +2,6 @@
 
 import { Vector2 } from "@/model/Vector2";
 import { useMobile } from "@/util/useMobile";
-import { useMediaTrack } from "@livekit/components-react";
 import {
   LocalTrackPublication,
   Participant,

@@ -1,4 +1,3 @@
-import { TrackSource, useTracks } from "@livekit/components-react";
 import { MicrophoneMuteButton } from "./MicrophoneMuteButton";
 import { MicrophoneSelector } from "./MicrophoneSelector";
 import { PoweredByLiveKit } from "./PoweredByLiveKit";

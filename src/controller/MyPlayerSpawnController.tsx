@@ -1,7 +1,7 @@
 import { CharacterName } from "@/components/CharacterSelector";
 import { Player } from "@/model/Player";
 import { Participant } from "livekit-client";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 
 type Props = {
   localParticipant: Participant | null;
