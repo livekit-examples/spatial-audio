@@ -160,19 +160,19 @@ function PublicationRenderer({
   );
 }
 
-type ParticipantPlaybackProps = {
+type SpatialParticipantPlaybackProps = {
   maxHearableDistance: number;
   trackPublication: TrackPublication;
   myPosition: { x: number; y: number };
   position: { x: number; y: number };
 };
 
-function PublicationPlayback({
+function SpatialPublicationPlayback({
   maxHearableDistance,
   trackPublication,
   myPosition,
   position,
-}: ParticipantPlaybackProps) {
+}: SpatialParticipantPlaybackProps) {
   const distance = useMemo(() => {
     const dx = myPosition.x - position.x;
     const dy = myPosition.y - position.y;
@@ -219,7 +219,7 @@ export function SpatialAudioController({
     <>
       {trackPositions.map((tp) => {
         return (
-          <PublicationPlayback
+          <SpatialPublicationPlayback
             maxHearableDistance={maxHearableDistance}
             key={`${tp.trackPublication.trackSid}`}
             trackPublication={tp.trackPublication}
