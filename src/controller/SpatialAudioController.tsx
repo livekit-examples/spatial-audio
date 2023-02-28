@@ -2,11 +2,7 @@
 
 import { Vector2 } from "@/model/Vector2";
 import { useMobile } from "@/util/useMobile";
-import {
-  LocalTrackPublication,
-  Participant,
-  TrackPublication,
-} from "livekit-client";
+import { LocalTrackPublication, TrackPublication } from "livekit-client";
 import React, {
   useCallback,
   useEffect,
@@ -202,7 +198,6 @@ function PublicationPlayback({
 }
 
 export type TrackPosition = {
-  participant: Participant;
   trackPublication: TrackPublication;
   position: Vector2;
 };
@@ -226,7 +221,7 @@ export function SpatialAudioController({
         return (
           <PublicationPlayback
             maxHearableDistance={maxHearableDistance}
-            key={`${tp.participant.identity}_${tp.trackPublication.trackSid}`}
+            key={`${tp.trackPublication.trackSid}`}
             trackPublication={tp.trackPublication}
             position={tp.position}
             myPosition={myPosition}
