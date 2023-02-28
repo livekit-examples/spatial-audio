@@ -202,7 +202,7 @@ export type TrackPosition = {
   position: Vector2;
 };
 
-type PlaybackProviderProps = {
+type SpatialAudioControllerProps = {
   trackPositions: TrackPosition[];
   myPosition: Vector2;
   maxHearableDistance: number;
@@ -212,7 +212,7 @@ export function SpatialAudioController({
   trackPositions,
   myPosition,
   maxHearableDistance,
-}: PlaybackProviderProps) {
+}: SpatialAudioControllerProps) {
   const audioContext = useWebAudioContext();
   if (!audioContext) return null;
   return (
