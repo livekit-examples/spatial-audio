@@ -42,6 +42,10 @@ export default async function handler(
     return res.status(500).json({ error: "Server misconfigured" });
   }
 
+  if (!username) return res.status(400).json({ error: "Missing username" });
+  if (!character) return res.status(400).json({ error: "Missing character" });
+  if (!room) return res.status(400).json({ error: "Missing room_name" });
+
   const livekitHost = wsUrl?.replace("wss://", "https://");
 
   const at = new AccessToken(apiKey, apiSecret, { identity: username });
