@@ -1,10 +1,12 @@
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Flivekit-examples%2Fspatial-audio&env=LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_WS_URL&envDescription=Get%20these%20from%20your%20cloud%20livekit%20project.&envLink=https%3A%2F%2Fcloud.livekit.io&project-name=my-spatial-audio-app)
+# Spatial Audio with LiveKit
 
-![Sample Gif](https://user-images.githubusercontent.com/8453967/221318613-861215da-1d71-492e-979f-dc7f18cb5c7f.gif)
+[![Sample Gif](https://user-images.githubusercontent.com/8453967/221318613-861215da-1d71-492e-979f-dc7f18cb5c7f.gif)](https://spatial-audio-demo.livekit.io/)
 
 This is a demo of spatial audio using LiveKit. Users join a little 2D world, and hear other users' audio in stereo, based on their position and distance relative to you.
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Online demo
+
+You can try an online demo right now at <https://spatial-audio-demo.livekit.io/>.
 
 ## Running locally
 
@@ -38,7 +40,11 @@ You can test it by opening <http://localhost:3000> in a browser.
 
 ## Deploying for production
 
-This demo is a Next.js app. Refer to the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for instructions on how to deploy for a production environment.
+This demo is a Next.js app. You can deploy to your Vercel account with one click:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Flivekit-examples%2Fspatial-audio&env=LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_WS_URL&envDescription=Get%20these%20from%20your%20cloud%20livekit%20project.&envLink=https%3A%2F%2Fcloud.livekit.io&project-name=my-spatial-audio-app)
+
+Refer to the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more about deploying to a production environment.
 
 ## Asset credits
 
