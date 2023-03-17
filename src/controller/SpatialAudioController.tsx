@@ -2,9 +2,7 @@
 
 import { Vector2 } from "@/model/Vector2";
 import { useMobile } from "@/util/useMobile";
-import { useMediaTrack } from "@livekit/components-react";
 import {
-  AudioTrack,
   LocalTrackPublication,
   RemoteTrackPublication,
   TrackPublication,
@@ -18,32 +16,85 @@ import React, {
 } from "react";
 import { useWebAudioContext } from "../providers/audio/webAudio";
 
-const usePublicationAudioMediaStream = (trackPublication: TrackPublication) => {
-  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
-
-  useEffect(() => {
-    trackPublication.on("subscribed", (track) => {
-      if (track.kind !== "audio") return;
-      setMediaStream(track.mediaStream || null);
-    });
-
-    if (
-      !trackPublication.track ||
-      trackPublication.track.mediaStream?.getAudioTracks().length === 0
-    )
-      return;
-
-    if (trackPublication instanceof LocalTrackPublication) {
-      setMediaStream(
-        new MediaStream([trackPublication.track.mediaStreamTrack])
-      );
-    } else if (trackPublication.track?.mediaStream) {
-      setMediaStream(trackPublication.track.mediaStream);
-    }
-  }, [trackPublication]);
-
-  return mediaStream;
+export type TrackPosition = {
+  trackPublication: TrackPublication;
+  position: Vector2;
 };
+
+type SpatialAudioControllerProps = {
+  trackPositions: TrackPosition[];
+  myPosition: Vector2;
+  maxHearableDistance: number;
+};
+
+export function SpatialAudioController({
+  trackPositions,
+  myPosition,
+  maxHearableDistance,
+}: SpatialAudioControllerProps) {
+  const audioContext = useWebAudioContext();
+  if (!audioContext) return null;
+  return (
+    <>
+      {trackPositions.map((tp) => {
+        return (
+          <SpatialPublicationPlayback
+            maxHearableDistance={maxHearableDistance}
+            key={`${tp.trackPublication.trackSid}`}
+            trackPublication={tp.trackPublication}
+            position={tp.position}
+            myPosition={myPosition}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+type SpatialParticipantPlaybackProps = {
+  maxHearableDistance: number;
+  trackPublication: TrackPublication;
+  myPosition: { x: number; y: number };
+  position: { x: number; y: number };
+};
+
+function SpatialPublicationPlayback({
+  maxHearableDistance,
+  trackPublication,
+  myPosition,
+  position,
+}: SpatialParticipantPlaybackProps) {
+  const distance = useMemo(() => {
+    const dx = myPosition.x - position.x;
+    const dy = myPosition.y - position.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }, [myPosition.x, myPosition.y, position.x, position.y]);
+
+  const hearable = useMemo(
+    () => distance <= maxHearableDistance,
+    [distance, maxHearableDistance]
+  );
+
+  // Selective subscription
+  useEffect(() => {
+    if (!(trackPublication instanceof RemoteTrackPublication)) {
+      return;
+    }
+    trackPublication?.setSubscribed(hearable);
+  }, [hearable, trackPublication]);
+
+  return (
+    <div>
+      {hearable && (
+        <PublicationRenderer
+          trackPublication={trackPublication}
+          position={position}
+          myPosition={myPosition}
+        />
+      )}
+    </div>
+  );
+}
 
 type PublicationRendererProps = {
   trackPublication: TrackPublication;
@@ -71,16 +122,10 @@ function PublicationRenderer({
   }); // set as far away initially
   const mediaStream = usePublicationAudioMediaStream(trackPublication);
 
-  useEffect(() => {
-    console.log("NEIL ms", mediaStream);
-  }, [mediaStream, trackPublication.track]);
-
   const cleanupWebAudio = useCallback(() => {
     if (panner.current) panner.current.disconnect();
     if (sourceNode.current) sourceNode.current.disconnect();
     if (gain.current) gain.current.disconnect();
-
-    console.log("NEIL cleaning up web audio");
 
     gain.current = null;
     panner.current = null;
@@ -101,15 +146,11 @@ function PublicationRenderer({
   useEffect(() => {
     cleanupWebAudio();
 
-    if (!audioEl.current || !mediaStream) {
-      console.log(
-        "NEIL setting up web audio early out",
-        audioEl.current,
-        mediaStream
-      );
-      if (mediaStream) {
-        console.log("NEIL audio tracks", mediaStream.getAudioTracks());
-      }
+    if (
+      !audioEl.current ||
+      !mediaStream ||
+      mediaStream.getAudioTracks().length === 0
+    ) {
       return;
     }
 
@@ -186,82 +227,29 @@ function PublicationRenderer({
   );
 }
 
-type SpatialParticipantPlaybackProps = {
-  maxHearableDistance: number;
-  trackPublication: TrackPublication;
-  myPosition: { x: number; y: number };
-  position: { x: number; y: number };
-};
+const usePublicationAudioMediaStream = (trackPublication: TrackPublication) => {
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
 
-function SpatialPublicationPlayback({
-  maxHearableDistance,
-  trackPublication,
-  myPosition,
-  position,
-}: SpatialParticipantPlaybackProps) {
-  const distance = useMemo(() => {
-    const dx = myPosition.x - position.x;
-    const dy = myPosition.y - position.y;
-    return Math.sqrt(dx * dx + dy * dy);
-  }, [myPosition.x, myPosition.y, position.x, position.y]);
-
-  const hearable = useMemo(
-    () => distance <= maxHearableDistance,
-    [distance, maxHearableDistance]
-  );
-
-  // Selective subscription
   useEffect(() => {
-    if (!(trackPublication instanceof RemoteTrackPublication)) {
+    trackPublication.on("subscribed", (track) => {
+      if (track.kind !== "audio") return;
+      setMediaStream(track.mediaStream || null);
+    });
+
+    if (
+      !trackPublication.track ||
+      trackPublication.track.mediaStream?.getAudioTracks().length === 0
+    )
       return;
+
+    if (trackPublication instanceof LocalTrackPublication) {
+      setMediaStream(
+        new MediaStream([trackPublication.track.mediaStreamTrack])
+      );
+    } else if (trackPublication.track?.mediaStream) {
+      setMediaStream(trackPublication.track.mediaStream);
     }
-    trackPublication?.setSubscribed(hearable);
-  }, [hearable, trackPublication]);
+  }, [trackPublication]);
 
-  return (
-    <div>
-      {hearable && (
-        <PublicationRenderer
-          trackPublication={trackPublication}
-          position={position}
-          myPosition={myPosition}
-        />
-      )}
-    </div>
-  );
-}
-
-export type TrackPosition = {
-  trackPublication: TrackPublication;
-  position: Vector2;
+  return mediaStream;
 };
-
-type SpatialAudioControllerProps = {
-  trackPositions: TrackPosition[];
-  myPosition: Vector2;
-  maxHearableDistance: number;
-};
-
-export function SpatialAudioController({
-  trackPositions,
-  myPosition,
-  maxHearableDistance,
-}: SpatialAudioControllerProps) {
-  const audioContext = useWebAudioContext();
-  if (!audioContext) return null;
-  return (
-    <>
-      {trackPositions.map((tp) => {
-        return (
-          <SpatialPublicationPlayback
-            maxHearableDistance={maxHearableDistance}
-            key={`${tp.trackPublication.trackSid}`}
-            trackPublication={tp.trackPublication}
-            position={tp.position}
-            myPosition={myPosition}
-          />
-        );
-      })}
-    </>
-  );
-}
