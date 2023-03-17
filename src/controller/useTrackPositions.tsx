@@ -3,7 +3,7 @@ import { Vector2 } from "@/model/Vector2";
 import { TrackBundle } from "@livekit/components-core";
 import { TrackSource, useTracks } from "@livekit/components-react";
 import { Participant, RoomEvent, TrackPublication } from "livekit-client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { TrackPosition } from "./SpatialAudioController";
 
 type Props = {
@@ -24,7 +24,9 @@ export const useTrackPositions = ({
     onlySubscribed: false,
   });
   const trackParticipantPairs = useTracks(sourceFilter, sourceOptions);
-  console.log("NEIL: ", trackParticipantPairs);
+  useEffect(() => {
+    console.log("LUKAS CHECK THIS OUT: ", trackParticipantPairs);
+  }, [trackParticipantPairs]);
   const trackPositions: TrackPosition[] = useMemo(() => {
     const microphoneTrackLookup = new Map<string, TrackBundle>();
     let jukeboxTrackPublication: TrackPublication | null = null;
