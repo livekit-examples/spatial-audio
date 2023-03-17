@@ -1008,17 +1008,17 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@floating-ui/core@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@floating-ui/core/-/core-1.2.1.tgz#074182a1d277f94569c50a6b456e62585d463c8e"
-  integrity sha512-LSqwPZkK3rYfD7GKoIeExXOyYx6Q1O4iqZWwIehDNuv3Dv425FIAE8PRwtAx1imEolFTHgBEcoFHm9MDnYgPCg==
+"@floating-ui/core@^1.2.3":
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@floating-ui/core/-/core-1.2.4.tgz#89e6311b021190c9e121fcf20306e76ac66e4066"
+  integrity sha512-SQOeVbMwb1di+mVWWJLpsUTToKfqVNioXys011beCAhyOIFtS+GQoW4EQSneuxzmQKddExDwQ+X0hLl4lJJaSQ==
 
 "@floating-ui/dom@^1.1.0":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-1.2.1.tgz#8f93906e1a3b9f606ce78afb058e874344dcbe07"
-  integrity sha512-Rt45SmRiV8eU+xXSB9t0uMYiQ/ZWGE/jumse2o3i5RGlyvcbqOF4q+1qBnzLE2kZ5JGhq0iMkcGXUKbFe7MpTA==
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-1.2.4.tgz#e2eb2674f57fc182c425587e48ea43e336f4b8f8"
+  integrity sha512-4+k+BLhtWj+peCU60gp0+rHeR8+Ohqx6kjJf/lHMnJ8JD5Qj6jytcq1+SZzRwD7rvHKRhR7TDiWWddrNrfwQLg==
   dependencies:
-    "@floating-ui/core" "^1.2.1"
+    "@floating-ui/core" "^1.2.3"
 
 "@humanwhocodes/config-array@^0.11.8":
   version "0.11.8"
@@ -1084,24 +1084,24 @@
   resolved "https://registry.yarnpkg.com/@juggle/resize-observer/-/resize-observer-3.4.0.tgz#08d6c5e20cf7e4cc02fd181c4b0c225cd31dbb60"
   integrity sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==
 
-"@livekit/components-core@0.3.0", "@livekit/components-core@^0.3":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@livekit/components-core/-/components-core-0.3.0.tgz#783f8ffae39cf5315df47e724d01581bf9915732"
-  integrity sha512-zFNStKZvW3U2uT3XA67OLvRwGctc3gROJSHFfSBafB6Odgxn3Zd95ykLbFy1QlUc+jldSwO6KLXt1djoRX7yUA==
+"@livekit/components-core@0.4.0", "@livekit/components-core@^0.4":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@livekit/components-core/-/components-core-0.4.0.tgz#64cd208701623adfe0927de064fd6fb3a88bfa06"
+  integrity sha512-2H3ltfU3pdYn8mF+JjeCLKlmEji1NjJTo4N9XHQZKP0gkMIh37AwONEpHLogcgSa980w8H5or4HVlQpmz2/cMQ==
   dependencies:
     "@floating-ui/dom" "^1.1.0"
     email-regex "^5.0.0"
-    global-tld-list "^0.0.1002"
+    global-tld-list "^0.0.1030"
     ip-regex "^5.0.0"
     loglevel "^1.8.1"
     rxjs "^7.8.0"
 
-"@livekit/components-react@^0.4":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@livekit/components-react/-/components-react-0.4.0.tgz#7869f8416fc2abd74afd924db1a285f729f0be40"
-  integrity sha512-X+GrgGSNXuJYdYbuF1hrhiOK40C/RIvyaCuF9JiaQU2wXn9McUDcABXV/iPC5n+Ecf7H/dNY/AVqvNcQlOBugg==
+"@livekit/components-react@^0.5":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@livekit/components-react/-/components-react-0.5.0.tgz#dfd64d5b8d989bd54d2e9cfcc61e67b293731f30"
+  integrity sha512-sbn3UnkalgssBL980TWlikE95jK+kht+fbjq9ssl4MGg9KNk+s3+uJFhiFpAkAEar47XOf74LCmS0O6ndguN4g==
   dependencies:
-    "@livekit/components-core" "0.3.0"
+    "@livekit/components-core" "0.4.0"
     "@react-hook/latest" "^1.0.3"
     clsx "^1.2.1"
 
@@ -2955,10 +2955,10 @@ glob@^7.1.3:
     once "^1.3.0"
     path-is-absolute "^1.0.0"
 
-global-tld-list@^0.0.1002:
-  version "0.0.1002"
-  resolved "https://registry.yarnpkg.com/global-tld-list/-/global-tld-list-0.0.1002.tgz#56a33120c33773837d5d4bec18ae3c83929ae6f0"
-  integrity sha512-11yCbAiy37cLCsb4EZElHdgK08gqJinBLrlWifycRG+8cSymU+SvZ6lBHzfKXwYl/e4hB3o+RCnl1rnR/rkAYA==
+global-tld-list@^0.0.1030:
+  version "0.0.1030"
+  resolved "https://registry.yarnpkg.com/global-tld-list/-/global-tld-list-0.0.1030.tgz#9910fbb3fd52f23f3e878ababb0645246f9cc2b3"
+  integrity sha512-uV9gNIGv1jDHSzewV/8Mnnkn+/JeoLnI3iY4p3XLauBt5J8xzqP4qAXQQvlkbTQoh1e3M8P0VcGDCz1lH42upA==
 
 globals@^11.1.0:
   version "11.12.0"

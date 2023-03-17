@@ -1,11 +1,9 @@
 import {
-  TrackSource,
   useLocalParticipant,
   useRemoteParticipants,
-  useTracks,
 } from "@livekit/components-react";
 import { ParticipantEvent, TrackPublication } from "livekit-client";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export type TrackWithIdentity = {
   identity: string;

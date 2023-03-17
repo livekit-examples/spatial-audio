@@ -40,7 +40,6 @@ export const JukeBoxContext = React.createContext<Data>(defaultData);
 
 export const JukeBoxProvider = ({ children }: Props) => {
   const { localParticipant } = useLocalParticipant();
-  const remoteParticipants = useRemoteParticipants();
   const existingJukeBoxTracks = useTracksByName("jukebox");
   const audioContext = useWebAudioContext();
 

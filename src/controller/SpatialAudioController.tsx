@@ -2,7 +2,11 @@
 
 import { Vector2 } from "@/model/Vector2";
 import { useMobile } from "@/util/useMobile";
-import { LocalTrackPublication, TrackPublication } from "livekit-client";
+import {
+  LocalTrackPublication,
+  RemoteTrackPublication,
+  TrackPublication,
+} from "livekit-client";
 import React, {
   useCallback,
   useEffect,
@@ -76,6 +80,11 @@ function PublicationRenderer({
     if (!audioEl.current || !trackPublication.track || !mediaStream)
       return cleanupWebAudio;
 
+    if (mediaStream.getAudioTracks().length === 0) {
+      console.error("no audio tracks found");
+      return;
+    }
+
     sourceNode.current = audioContext.createMediaStreamSource(mediaStream);
 
     // if on mobile, the panner node has no effect
@@ -142,17 +151,6 @@ function PublicationRenderer({
     }
   }, [mobile, relativePosition.x, relativePosition.y, panner]);
 
-  // TODO: re-enable this when we get selective subscription working
-  // useEffect(() => {
-  //   if (!(trackPublication instanceof RemoteTrackPublication)) {
-  //     return;
-  //   }
-  //   trackPublication?.setSubscribed(true);
-  //   return () => {
-  //     trackPublication?.setSubscribed(false);
-  //   };
-  // }, [trackPublication]);
-
   return (
     <>
       <audio muted={true} ref={audioEl} />
@@ -183,6 +181,15 @@ function SpatialPublicationPlayback({
     () => distance <= maxHearableDistance,
     [distance, maxHearableDistance]
   );
+
+  // Selective subscription
+  useEffect(() => {
+    if (!(trackPublication instanceof RemoteTrackPublication)) {
+      return;
+    }
+    console.log("NEIL set subscribed", hearable, trackPublication.trackSid);
+    trackPublication?.setSubscribed(hearable);
+  }, [hearable, trackPublication]);
 
   return (
     <div>

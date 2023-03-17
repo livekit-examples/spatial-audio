@@ -9,8 +9,6 @@ import {
   useRemoteParticipants,
   useRoomContext,
 } from "@livekit/components-react";
-// TODO we should re-export this type form components-react
-import type { BaseDataMessage } from "@livekit/components-core";
 import {
   ConnectionState,
   DataPacket_Kind,
@@ -32,16 +30,6 @@ type Props = {
   setNetworkPositions: Dispatch<SetStateAction<Map<string, Vector2>>>;
   setNetworkAnimations: Dispatch<SetStateAction<Map<string, AnimationState>>>;
 };
-
-interface PositionMessage extends BaseDataMessage {
-  channelId: "position";
-  payload: { x: number; y: number };
-}
-
-interface AnimationMessage extends BaseDataMessage {
-  channelId: "animation";
-  payload: AnimationState;
-}
 
 export function NetcodeController({
   myPlayer,

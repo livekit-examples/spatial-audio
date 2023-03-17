@@ -1,6 +1,6 @@
 import { Player } from "@/model/Player";
 import { Vector2 } from "@/model/Vector2";
-import { TrackParticipantPair } from "@livekit/components-core";
+import { TrackBundle } from "@livekit/components-core";
 import { TrackSource, useTracks } from "@livekit/components-react";
 import { Participant, RoomEvent, TrackPublication } from "livekit-client";
 import { useMemo, useState } from "react";
@@ -21,17 +21,19 @@ export const useTrackPositions = ({
   ]);
   const [sourceOptions] = useState({
     updateOnlyOn: [RoomEvent.TrackPublished, RoomEvent.TrackUnpublished],
+    onlySubscribed: false,
   });
   const trackParticipantPairs = useTracks(sourceFilter, sourceOptions);
+  console.log("NEIL: ", trackParticipantPairs);
   const trackPositions: TrackPosition[] = useMemo(() => {
-    const microphoneTrackLookup = new Map<string, TrackParticipantPair>();
+    const microphoneTrackLookup = new Map<string, TrackBundle>();
     let jukeboxTrackPublication: TrackPublication | null = null;
     let jukeboxParticipant: Participant | null = null;
 
     // Memoize all of the remote microphone tracks and the jukebox track
     trackParticipantPairs.forEach((tpp) => {
-      if (tpp.track.trackName === "jukebox") {
-        jukeboxTrackPublication = tpp.track;
+      if (tpp.publication.trackName === "jukebox") {
+        jukeboxTrackPublication = tpp.publication;
         jukeboxParticipant = tpp.participant;
         return;
       }
@@ -43,7 +45,7 @@ export const useTrackPositions = ({
       .filter((p) => microphoneTrackLookup.has(p.username))
       .map((p) => {
         return {
-          trackPublication: microphoneTrackLookup.get(p.username)!.track,
+          trackPublication: microphoneTrackLookup.get(p.username)!.publication,
           participant: microphoneTrackLookup.get(p.username)!.participant,
           position: p.position,
         };
