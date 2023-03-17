@@ -20,7 +20,12 @@ export const useTrackPositions = ({
     TrackSource.Unknown,
   ]);
   const [sourceOptions] = useState({
-    updateOnlyOn: [RoomEvent.TrackPublished, RoomEvent.TrackUnpublished],
+    updateOnlyOn: [
+      RoomEvent.TrackPublished,
+      RoomEvent.TrackUnpublished,
+      RoomEvent.ParticipantConnected,
+      RoomEvent.Connected,
+    ],
     onlySubscribed: false,
   });
   const trackParticipantPairs = useTracks(sourceFilter, sourceOptions);

@@ -98,7 +98,7 @@ export const JukeBoxProvider = ({ children }: Props) => {
     source.current.connect(sink.current);
     localParticipant.publishTrack(sink.current.stream.getAudioTracks()[0], {
       name: "jukebox",
-      source: TrackSource.Microphone,
+      source: TrackSource.Unknown,
     });
   }, [audioContext, localParticipant, stopJukeBox]);
 

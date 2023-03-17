@@ -2,7 +2,9 @@
 
 import { Vector2 } from "@/model/Vector2";
 import { useMobile } from "@/util/useMobile";
+import { useMediaTrack } from "@livekit/components-react";
 import {
+  AudioTrack,
   LocalTrackPublication,
   RemoteTrackPublication,
   TrackPublication,
@@ -15,6 +17,33 @@ import React, {
   useState,
 } from "react";
 import { useWebAudioContext } from "../providers/audio/webAudio";
+
+const usePublicationAudioMediaStream = (trackPublication: TrackPublication) => {
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+
+  useEffect(() => {
+    trackPublication.on("subscribed", (track) => {
+      if (track.kind !== "audio") return;
+      setMediaStream(track.mediaStream || null);
+    });
+
+    if (
+      !trackPublication.track ||
+      trackPublication.track.mediaStream?.getAudioTracks().length === 0
+    )
+      return;
+
+    if (trackPublication instanceof LocalTrackPublication) {
+      setMediaStream(
+        new MediaStream([trackPublication.track.mediaStreamTrack])
+      );
+    } else if (trackPublication.track?.mediaStream) {
+      setMediaStream(trackPublication.track.mediaStream);
+    }
+  }, [trackPublication]);
+
+  return mediaStream;
+};
 
 type PublicationRendererProps = {
   trackPublication: TrackPublication;
@@ -40,23 +69,18 @@ function PublicationRenderer({
     x: 1000,
     y: 1000,
   }); // set as far away initially
+  const mediaStream = usePublicationAudioMediaStream(trackPublication);
 
-  const mediaStream = useMemo(() => {
-    if (
-      trackPublication instanceof LocalTrackPublication &&
-      trackPublication.track
-    ) {
-      const mediaStreamTrack = trackPublication.track.mediaStreamTrack;
-      return new MediaStream([mediaStreamTrack]);
-    }
-
-    return trackPublication.track?.mediaStream || null;
-  }, [trackPublication]);
+  useEffect(() => {
+    console.log("NEIL ms", mediaStream);
+  }, [mediaStream, trackPublication.track]);
 
   const cleanupWebAudio = useCallback(() => {
     if (panner.current) panner.current.disconnect();
     if (sourceNode.current) sourceNode.current.disconnect();
     if (gain.current) gain.current.disconnect();
+
+    console.log("NEIL cleaning up web audio");
 
     gain.current = null;
     panner.current = null;
@@ -77,11 +101,15 @@ function PublicationRenderer({
   useEffect(() => {
     cleanupWebAudio();
 
-    if (!audioEl.current || !trackPublication.track || !mediaStream)
-      return cleanupWebAudio;
-
-    if (mediaStream.getAudioTracks().length === 0) {
-      console.error("no audio tracks found");
+    if (!audioEl.current || !mediaStream) {
+      console.log(
+        "NEIL setting up web audio early out",
+        audioEl.current,
+        mediaStream
+      );
+      if (mediaStream) {
+        console.log("NEIL audio tracks", mediaStream.getAudioTracks());
+      }
       return;
     }
 
@@ -187,7 +215,6 @@ function SpatialPublicationPlayback({
     if (!(trackPublication instanceof RemoteTrackPublication)) {
       return;
     }
-    console.log("NEIL set subscribed", hearable, trackPublication.trackSid);
     trackPublication?.setSubscribed(hearable);
   }, [hearable, trackPublication]);
 
