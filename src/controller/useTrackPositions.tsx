@@ -1,8 +1,13 @@
 import { Player } from "@/model/Player";
 import { Vector2 } from "@/model/Vector2";
-import { TrackBundle } from "@livekit/components-core";
-import { TrackSource, useTracks } from "@livekit/components-react";
-import { Participant, RoomEvent, TrackPublication } from "livekit-client";
+import { TrackReference } from "@livekit/components-core";
+import { useTracks } from "@livekit/components-react";
+import {
+  Participant,
+  RoomEvent,
+  Track,
+  TrackPublication,
+} from "livekit-client";
 import { useEffect, useMemo, useState } from "react";
 import { TrackPosition } from "./SpatialAudioController";
 
@@ -16,8 +21,8 @@ export const useTrackPositions = ({
   remotePlayers,
 }: Props) => {
   const [sourceFilter] = useState([
-    TrackSource.Microphone,
-    TrackSource.Unknown,
+    Track.Source.Microphone,
+    Track.Source.Unknown,
   ]);
   const [sourceOptions] = useState({
     updateOnlyOn: [
@@ -33,7 +38,7 @@ export const useTrackPositions = ({
     console.log("LUKAS CHECK THIS OUT: ", trackParticipantPairs);
   }, [trackParticipantPairs]);
   const trackPositions: TrackPosition[] = useMemo(() => {
-    const microphoneTrackLookup = new Map<string, TrackBundle>();
+    const microphoneTrackLookup = new Map<string, TrackReference>();
     let jukeboxTrackPublication: TrackPublication | null = null;
     let jukeboxParticipant: Participant | null = null;
 

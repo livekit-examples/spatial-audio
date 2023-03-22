@@ -1008,17 +1008,17 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@floating-ui/core@^1.2.3":
+"@floating-ui/core@^1.2.4":
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/@floating-ui/core/-/core-1.2.4.tgz#89e6311b021190c9e121fcf20306e76ac66e4066"
   integrity sha512-SQOeVbMwb1di+mVWWJLpsUTToKfqVNioXys011beCAhyOIFtS+GQoW4EQSneuxzmQKddExDwQ+X0hLl4lJJaSQ==
 
 "@floating-ui/dom@^1.1.0":
-  version "1.2.4"
-  resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-1.2.4.tgz#e2eb2674f57fc182c425587e48ea43e336f4b8f8"
-  integrity sha512-4+k+BLhtWj+peCU60gp0+rHeR8+Ohqx6kjJf/lHMnJ8JD5Qj6jytcq1+SZzRwD7rvHKRhR7TDiWWddrNrfwQLg==
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-1.2.5.tgz#c9ec259a24ce0958b1ea29674df4eee4455361a9"
+  integrity sha512-+sAUfpQ3Frz+VCbPCqj+cZzvEESy3fjSeT/pDWkYCWOBXYNNKZfuVsHuv8/JO2zze8+Eb/Q7a6hZVgzS81fLbQ==
   dependencies:
-    "@floating-ui/core" "^1.2.3"
+    "@floating-ui/core" "^1.2.4"
 
 "@humanwhocodes/config-array@^0.11.8":
   version "0.11.8"
@@ -1084,10 +1084,10 @@
   resolved "https://registry.yarnpkg.com/@juggle/resize-observer/-/resize-observer-3.4.0.tgz#08d6c5e20cf7e4cc02fd181c4b0c225cd31dbb60"
   integrity sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==
 
-"@livekit/components-core@0.4.0", "@livekit/components-core@^0.4":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@livekit/components-core/-/components-core-0.4.0.tgz#64cd208701623adfe0927de064fd6fb3a88bfa06"
-  integrity sha512-2H3ltfU3pdYn8mF+JjeCLKlmEji1NjJTo4N9XHQZKP0gkMIh37AwONEpHLogcgSa980w8H5or4HVlQpmz2/cMQ==
+"@livekit/components-core@0.5.1", "@livekit/components-core@^0.5.1":
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/@livekit/components-core/-/components-core-0.5.1.tgz#9eb9b4fc39db7ba978f15f9952e495a8fd1f58b5"
+  integrity sha512-z2Z1kjEiOSSB91cdHaSb/l74KH6yUHbLxi5iej2JO66mgv2JYwAAu1ByY/4D4xtVSFRU7gh4eHJeaHE6oLx0tg==
   dependencies:
     "@floating-ui/dom" "^1.1.0"
     email-regex "^5.0.0"
@@ -1096,12 +1096,12 @@
     loglevel "^1.8.1"
     rxjs "^7.8.0"
 
-"@livekit/components-react@^0.5":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@livekit/components-react/-/components-react-0.5.0.tgz#dfd64d5b8d989bd54d2e9cfcc61e67b293731f30"
-  integrity sha512-sbn3UnkalgssBL980TWlikE95jK+kht+fbjq9ssl4MGg9KNk+s3+uJFhiFpAkAEar47XOf74LCmS0O6ndguN4g==
+"@livekit/components-react@^0.6":
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/@livekit/components-react/-/components-react-0.6.2.tgz#2149d8bcb88596b944cbef5d7c80a4fdc5285fd2"
+  integrity sha512-uMcsnxvHnObkgwWaGNNvRFZKa5noNNw/kFRl/fZ9Wg4CK4LyCBPZtNJjSoUuPZ3FSijkoF2mDMXk72beUI/5jA==
   dependencies:
-    "@livekit/components-core" "0.4.0"
+    "@livekit/components-core" "0.5.1"
     "@react-hook/latest" "^1.0.3"
     clsx "^1.2.1"
 
@@ -1641,10 +1641,15 @@
   resolved "https://registry.yarnpkg.com/@types/long/-/long-4.0.2.tgz#b74129719fc8d11c01868010082d483b7545591a"
   integrity sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==
 
-"@types/node@18.11.18", "@types/node@>=13.7.0":
+"@types/node@18.11.18":
   version "18.11.18"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.18.tgz#8dfb97f0da23c2293e554c5a50d61ef134d7697f"
   integrity sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==
+
+"@types/node@>=13.7.0":
+  version "18.15.5"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.15.5.tgz#3af577099a99c61479149b716183e70b5239324a"
+  integrity sha512-Ark2WDjjZO7GmvsyFFf81MXuGTA/d6oP38anyxWOL6EREyBKAxKoFHwBhaZxCfLRLpO8JgVXwqOwSwa7jRcjew==
 
 "@types/offscreencanvas@^2019.6.4":
   version "2019.7.0"
@@ -3463,9 +3468,9 @@ lines-and-columns@^1.1.6:
   integrity sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==
 
 livekit-client@^1.6.3:
-  version "1.6.3"
-  resolved "https://registry.yarnpkg.com/livekit-client/-/livekit-client-1.6.3.tgz#4ff46f1fbdaaa7982c339738964d18e8b43fd3d5"
-  integrity sha512-hnVN/rQ9pVWK0L1lemLSOzBI6IXoJepgHP/USqmGJ6eucaoLMx1jK0iMWpR5T2/pg97GmZaUaRSUcXlELNSsoA==
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/livekit-client/-/livekit-client-1.7.0.tgz#7090599bb3ce06b585830c0e9535641fade3c827"
+  integrity sha512-LXjSNc+7mkptjMzG3kgWk/SfiME0Ug1GPt8niK55S7ht5gYpncwPIg/N+QqLJqn2YpYVT827bK6sExX7Vlt/vQ==
   dependencies:
     async-await-queue "^1.2.1"
     events "^3.3.0"
@@ -4014,9 +4019,9 @@ protobufjs@^6.10.2:
     long "^4.0.0"
 
 protobufjs@^7.0.0:
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-7.2.0.tgz#ca6b1ceb9a9efe21186ba96178089ec563011a5e"
-  integrity sha512-hYCqTDuII4iJ4stZqiuGCSU8xxWl5JeXYpwARGtn/tWcKCAro6h3WQz+xpsNbXW0UYqpmTQFEyFWO0G0Kjt64g==
+  version "7.2.2"
+  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-7.2.2.tgz#2af401d8c547b9476fb37ffc65782cf302342ca3"
+  integrity sha512-++PrQIjrom+bFDPpfmqXfAGSQs40116JRrqqyf53dymUMvvb5d/LMRyicRoF1AUKoXVS1/IgJXlEgcpr4gTF3Q==
   dependencies:
     "@protobufjs/aspromise" "^1.1.2"
     "@protobufjs/base64" "^1.1.2"
@@ -4278,10 +4283,10 @@ sdp-transform@^2.14.1:
   resolved "https://registry.yarnpkg.com/sdp-transform/-/sdp-transform-2.14.1.tgz#2bb443583d478dee217df4caa284c46b870d5827"
   integrity sha512-RjZyX3nVwJyCuTo5tGPx+PZWkDMCg7oOLpSlhjDdZfwUoNqG1mM8nyj31IGHyaPWXhjbP7cdK3qZ2bmkJ1GzRw==
 
-sdp@^3.0.2:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/sdp/-/sdp-3.0.3.tgz#669958d54663ea9f4a46cc66518c9d980c52c61e"
-  integrity sha512-8EkfckS+XZQaPLyChu4ey7PghrdcraCVNpJe2Gfdi2ON1ylQ7OasuKX+b37R9slnRChwIAiQgt+oj8xXGD8x+A==
+sdp@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/sdp/-/sdp-3.2.0.tgz#8961420552b36663b4d13ddba6f478d1461896a5"
+  integrity sha512-d7wDPgDV3DDiqulJjKiV2865wKsJ34YI+NDREbm+FySq6WuKOikwyNQcm+doLAZ1O6ltdO0SeKle2xMpN3Brgw==
 
 semver@^5.6.0:
   version "5.7.1"
@@ -4664,7 +4669,12 @@ typescript@4.9.4:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.4.tgz#a2a3d2756c079abda241d75f149df9d561091e78"
   integrity sha512-Uz+dTXYzxXXbsFpM86Wh3dKCxrQqUcVMxwU54orwlJjOpO3ao8L7j5lH+dWfTwgCwIuM9GQ2kvVotzYJMXTBZg==
 
-ua-parser-js@^1.0.2, ua-parser-js@^1.0.33:
+ua-parser-js@^1.0.2:
+  version "1.0.34"
+  resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-1.0.34.tgz#b33f41c415325839f354005d25a2f588be296976"
+  integrity sha512-K9mwJm/DaB6mRLZfw6q8IMXipcrmuT6yfhYmwhAkuh+81sChuYstYA+znlgaflUPaYUa3odxKPKGw6Vw/lANew==
+
+ua-parser-js@^1.0.33:
   version "1.0.33"
   resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-1.0.33.tgz#f21f01233e90e7ed0f059ceab46eb190ff17f8f4"
   integrity sha512-RqshF7TPTE0XLYAqmjlu5cLLuGdKrNu9O1KLA/qp39QtbZwuzwv1dT46DZSopoUMsYgXpB3Cv8a03FI8b74oFQ==
@@ -4738,11 +4748,11 @@ util-deprecate@^1.0.2:
   integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
 
 webrtc-adapter@^8.1.1:
-  version "8.2.0"
-  resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-8.2.0.tgz#566220c95d707017bbefbb555d6e2467dd1b691e"
-  integrity sha512-umxCMgedPAVq4Pe/jl3xmelLXLn4XZWFEMR5Iipb5wJ+k1xMX0yC4ZY9CueZUU1MjapFxai1tFGE7R/kotH6Ww==
+  version "8.2.1"
+  resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-8.2.1.tgz#b71a5025c9ab3eaf9b9bd7020b090cf0a3415680"
+  integrity sha512-uZGIyr9FgjNHwEy8dkSV6Dq7wASbaSeSpibhrzFiRf9eSmUsMd4a55ZIfCdaASeIbalGWEQIkcE59Y9VkgqDZw==
   dependencies:
-    sdp "^3.0.2"
+    sdp "^3.2.0"
 
 which-boxed-primitive@^1.0.2:
   version "1.0.2"

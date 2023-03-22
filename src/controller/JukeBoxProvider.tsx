@@ -2,7 +2,6 @@ import { useCallback, useMemo, useRef } from "react";
 
 import React, { useContext } from "react";
 import {
-  TrackSource,
   useLocalParticipant,
   useRemoteParticipants,
 } from "@livekit/components-react";
@@ -12,7 +11,7 @@ import {
   useTracksByName,
 } from "@/util/useAudioTracksByName";
 import { useWebAudioContext } from "@/providers/audio/webAudio";
-import { LocalTrack, LocalTrackPublication } from "livekit-client";
+import { LocalTrack, LocalTrackPublication, Track } from "livekit-client";
 
 type Data = {
   jukeBoxTrack: TrackWithIdentity | null;
@@ -98,7 +97,7 @@ export const JukeBoxProvider = ({ children }: Props) => {
     source.current.connect(sink.current);
     localParticipant.publishTrack(sink.current.stream.getAudioTracks()[0], {
       name: "jukebox",
-      source: TrackSource.Unknown,
+      source: Track.Source.Unknown,
     });
   }, [audioContext, localParticipant, stopJukeBox]);
 
