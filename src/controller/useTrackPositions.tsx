@@ -34,9 +34,6 @@ export const useTrackPositions = ({
     onlySubscribed: false,
   });
   const trackParticipantPairs = useTracks(sourceFilter, sourceOptions);
-  useEffect(() => {
-    console.log("LUKAS CHECK THIS OUT: ", trackParticipantPairs);
-  }, [trackParticipantPairs]);
   const trackPositions: TrackPosition[] = useMemo(() => {
     const microphoneTrackLookup = new Map<string, TrackReference>();
     let jukeboxTrackPublication: TrackPublication | null = null;
