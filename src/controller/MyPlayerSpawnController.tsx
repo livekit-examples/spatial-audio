@@ -20,7 +20,7 @@ export function MyPlayerSpawnController({
     if (myPlayer === null && localParticipant?.identity && localCharacter) {
       setMyPlayer({
         username: localParticipant.identity,
-        position: { x: 0, y: 0 },
+        position: { x: 10, y: 0 },
         animation: "idle_left",
         character: localCharacter,
       });

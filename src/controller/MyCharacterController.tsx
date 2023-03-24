@@ -19,6 +19,7 @@ export function MyCharacterController({
       if (!prev) {
         return prev;
       }
+
       const magnitude = Math.sqrt(
         inputs.direction.x ** 2 + inputs.direction.y ** 2
       );

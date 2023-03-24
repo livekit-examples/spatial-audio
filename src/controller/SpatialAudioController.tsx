@@ -167,8 +167,8 @@ function PublicationRenderer({
       panner.current = audioContext.createPanner();
       panner.current.coneOuterAngle = 360;
       panner.current.coneInnerAngle = 360;
-      panner.current.positionX.setValueAtTime(1000, 0); // set far away initially so we don't hear it at full volume
-      panner.current.positionY.setValueAtTime(0, 0);
+      panner.current.positionX.setValueAtTime(relativePosition.x, 0); // set far away initially so we don't hear it at full volume
+      panner.current.positionY.setValueAtTime(relativePosition.y, 0);
       panner.current.positionZ.setValueAtTime(0, 0);
       panner.current.distanceModel = "exponential";
       panner.current.coneOuterGain = 1;
