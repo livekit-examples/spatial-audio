@@ -31,6 +31,8 @@ import { JukeBox } from "./JukeBox";
 import { JukeBoxModal } from "./JukeBoxModal";
 import { JukeBoxProvider } from "@/controller/JukeBoxProvider";
 import { useTrackPositions } from "@/controller/useTrackPositions";
+import { ParticipantVideo } from "./ParticipantVideo";
+import { LocalVideo } from './LocalVideo';
 
 export function GameView() {
   const { ref, width = 1, height = 1 } = useResizeObserver<HTMLDivElement>();
@@ -210,6 +212,18 @@ export function GameView() {
             </Camera>
           </AnimationsProvider>
         </Stage>
+        <div className="absolute inset-0 pointer-events-none">
+        {remotePlayers.map((player) => (
+          <ParticipantVideo
+            key={player.username}
+            participantId={player.username}
+            position={player.position}
+            myPosition={myPlayer?.position || { x: 0, y: 0 }}
+            radius={earshotRadius} // Use same radius as audio or define separate
+          />
+        ))}
+       </div>
+        <LocalVideo position={myPlayer?.position || { x: 0, y: 0 }} />
       </JukeBoxProvider>
     </div>
   );

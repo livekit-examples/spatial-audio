@@ -107,7 +107,17 @@ export default function Page({ params: { room_name } }: Props) {
         token={connectionDetails.token}
         serverUrl={connectionDetails.ws_url}
         connect={true}
-        connectOptions={{ autoSubscribe: false }}
+        connectOptions={{
+          autoSubscribe: true,
+          videoCaptureDefaults: {
+            resolution: { width: 320, height: 240 },
+            enabled: true,
+          },
+          publishDefaults: {
+            videoEnabled: true,
+            audioEnabled: true,
+          }
+        }}
         options={{ expWebAudioMix: { audioContext } }}
       >
         <WebAudioContext.Provider value={audioContext}>
